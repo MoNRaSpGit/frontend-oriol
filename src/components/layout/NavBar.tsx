@@ -35,7 +35,7 @@ const TABS_VISIBLES: Tab[] = [
 
 const TABS_MENU: Tab[] = [
   { vista: 'productos', etiqueta: 'Productos', icono: <FaBoxOpen /> },
-  { vista: 'clientes', etiqueta: 'Clientes', icono: <FaUsers /> },
+  { vista: 'clientes', etiqueta: 'Cuenta corriente', icono: <FaUsers /> },
   { vista: 'pagos', etiqueta: 'Pagos', icono: <FaMoneyBillWave /> },
   { vista: 'panel', etiqueta: 'Panel', icono: <FaChartBar /> },
   { vista: 'mes', etiqueta: 'Mes', icono: <FaCalendarAlt /> },

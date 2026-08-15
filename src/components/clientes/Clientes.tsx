@@ -42,7 +42,7 @@ const Clientes = () => {
 
   return (
     <div className="container-fluid mt-4 clientes-container">
-      <h2 className="mb-4">Clientes</h2>
+      <h2 className="mb-4">Cuenta corriente</h2>
       {error && <div className="alert alert-danger">{error}</div>}
 
       <div className="clientes-columnas">
