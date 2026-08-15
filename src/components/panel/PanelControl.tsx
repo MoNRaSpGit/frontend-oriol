@@ -2,10 +2,23 @@ import { useEffect, useState } from 'react'
 import { getPanelHoy, actualizarCambio } from '../../services/panel.service'
 import { mensajeDeError } from '../../utils/errores'
 import EditarCambioModal from './EditarCambioModal'
+import EditarPorcentajeGananciaModal from './EditarPorcentajeGananciaModal'
 import type { PanelHoy, TotalPorMoneda } from '../../types/panel'
 import '../../styles/panel/panel.scss'
 
 const CANTIDAD_MOVIMIENTOS_VISIBLES = 3
+
+// % de la venta diaria que se considera ganancia — editable a mano
+// (guardado en el navegador, no en el backend), para que cada negocio lo
+// ajuste segun su propio margen.
+const PORCENTAJE_GANANCIA_STORAGE_KEY = 'oriol.porcentajeGanancia'
+const PORCENTAJE_GANANCIA_DEFAULT = 30
+
+function getPorcentajeGananciaGuardado(): number {
+  if (typeof window === 'undefined') return PORCENTAJE_GANANCIA_DEFAULT
+  const guardado = Number(window.localStorage.getItem(PORCENTAJE_GANANCIA_STORAGE_KEY))
+  return Number.isFinite(guardado) && guardado > 0 ? guardado : PORCENTAJE_GANANCIA_DEFAULT
+}
 
 const formatearMoneda = (total: TotalPorMoneda) => {
   const partes: string[] = []
@@ -35,6 +48,8 @@ const PanelControl = () => {
   const [panel, setPanel] = useState<PanelHoy | null>(null)
   const [error, setError] = useState('')
   const [editandoCambio, setEditandoCambio] = useState(false)
+  const [editandoPorcentaje, setEditandoPorcentaje] = useState(false)
+  const [porcentajeGanancia, setPorcentajeGanancia] = useState(getPorcentajeGananciaGuardado)
   const [verTodosMovimientos, setVerTodosMovimientos] = useState(false)
   const [detalleAbierto, setDetalleAbierto] = useState<number | null>(null)
 
@@ -55,6 +70,12 @@ const PanelControl = () => {
     await actualizarCambio(valor)
     setEditandoCambio(false)
     cargarPanel()
+  }
+
+  const handleGuardarPorcentaje = (valor: number) => {
+    setPorcentajeGanancia(valor)
+    window.localStorage.setItem(PORCENTAJE_GANANCIA_STORAGE_KEY, String(valor))
+    setEditandoPorcentaje(false)
   }
 
   if (!panel) {
@@ -83,49 +104,27 @@ const PanelControl = () => {
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      {/* 1. Caja diaria: mismo orden de tarjetas que "Caja diaria" en LaClaudia
-          (Caja inicial → Ventas del día destacada → Ganancia estimada →
-          Monto actual → Pagos realizados). No incluye la tarjeta de
-          "Comparación" de LaClaudia porque requiere datos históricos
-          (día anterior) que hoy no se calculan. */}
       <section className="panel-section">
         <h4 className="panel-section-title">Caja diaria</h4>
         <div className="panel-tarjetas">
+          <div className="panel-metric panel-metric--highlight">
+            <div className="panel-metric-titulo">Venta diaria</div>
+            <div className="panel-metric-valor">$ {panel.ventasDelDia.toFixed(2)}</div>
+          </div>
+
           <div
             className="panel-metric panel-metric--editable"
-            onDoubleClick={() => setEditandoCambio(true)}
-            title="Doble click para editar"
+            onClick={() => setEditandoPorcentaje(true)}
+            title="Click para editar el porcentaje"
           >
-            <div className="panel-metric-titulo">Caja inicial</div>
-            <div className="panel-metric-valor">$ {panel.cambio.toFixed(2)}</div>
-          </div>
-
-          <div className="panel-metric panel-metric--highlight">
-            <div className="panel-metric-titulo">Ventas del día</div>
-            <div className="panel-metric-valor">$ {panel.ventasDelDia.toFixed(2)}</div>
-            <div className="panel-metric-nota">Solo efectivo (plata real en caja), en pesos equivalentes</div>
-          </div>
-
-          <div className="panel-metric">
-            <div className="panel-metric-titulo">Ganancia estimada</div>
-            <div className="panel-metric-valor">$ {panel.ganancias.toFixed(2)}</div>
-            <div className="panel-metric-nota">(ventas del día − pagos) con un 30% descontado</div>
-          </div>
-
-          <div className="panel-metric">
-            <div className="panel-metric-titulo">Monto actual</div>
-            <div className="panel-metric-valor">$ {panel.caja.toFixed(2)}</div>
-            <div className="panel-metric-nota">
-              {panel.cambio.toFixed(2)} (inicial) + {panel.totalEfectivo.pesos.toFixed(2)} (efectivo) −{' '}
-              {panel.totalPagos.toFixed(2)} (pagos)
-            </div>
-          </div>
-
-          <div className="panel-metric">
-            <div className="panel-metric-titulo">Pagos realizados</div>
-            <div className="panel-metric-valor panel-metric-valor--negativo">- $ {panel.totalPagos.toFixed(2)}</div>
+            <div className="panel-metric-titulo">Ganancia ({porcentajeGanancia}%)</div>
+            <div className="panel-metric-valor">$ {((panel.ventasDelDia * porcentajeGanancia) / 100).toFixed(2)}</div>
           </div>
         </div>
+
+        <button type="button" className="panel-caja-inicial-link" onClick={() => setEditandoCambio(true)}>
+          Caja inicial: $ {panel.cambio.toFixed(2)} · editar
+        </button>
       </section>
 
       {/* 2. Medios de cobro (equivalente a "Medios de cobro" en LaClaudia) */}
@@ -216,6 +215,14 @@ const PanelControl = () => {
           valorActual={panel.cambio}
           onCancelar={() => setEditandoCambio(false)}
           onGuardar={handleGuardarCambio}
+        />
+      )}
+
+      {editandoPorcentaje && (
+        <EditarPorcentajeGananciaModal
+          valorActual={porcentajeGanancia}
+          onCancelar={() => setEditandoPorcentaje(false)}
+          onGuardar={handleGuardarPorcentaje}
         />
       )}
     </div>

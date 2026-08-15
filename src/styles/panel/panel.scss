@@ -120,18 +120,6 @@
   color: #111827;
 }
 
-.panel-metric-valor--negativo {
-  color: #7f1d1d;
-}
-
-.panel-metric-nota {
-  margin-top: auto;
-  padding-top: 6px;
-  color: #64748b;
-  font-size: 0.78rem;
-  line-height: 1.25;
-}
-
 .panel-metric--highlight {
   border-color: #5f95cf;
   background: linear-gradient(180deg, #d8ebff 0%, #bfdfff 100%);
@@ -144,10 +132,6 @@
   .panel-metric-valor {
     color: #0f3b6d;
   }
-
-  .panel-metric-nota {
-    color: #2a5c8f;
-  }
 }
 
 .panel-metric--editable {
@@ -155,6 +139,21 @@
 
   &:hover {
     box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  }
+}
+
+.panel-caja-inicial-link {
+  margin-top: 10px;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.82rem;
+  color: #64748b;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    color: #334155;
   }
 }
 
