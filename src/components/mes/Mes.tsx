@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { getResumenMes, getHistorialMeses } from '../../services/panel.service'
+import { getResumenMes, getHistorialMeses, editarCierreDia } from '../../services/panel.service'
 import { mensajeDeError } from '../../utils/errores'
-import type { ResumenMes, TotalMes } from '../../types/panel'
+import type { DiaMes, ResumenMes, TotalMes } from '../../types/panel'
 import GraficoVentasMensuales from './GraficoVentasMensuales'
+import EditarCierreDiaModal from './EditarCierreDiaModal'
 import '../../styles/mes/mes.scss'
 import '../../styles/mes/grafico-ventas-mensuales.scss'
 
@@ -30,6 +31,7 @@ const Mes = () => {
   const [error, setError] = useState('')
   const [semanasAbiertas, setSemanasAbiertas] = useState<Set<number>>(new Set([1]))
   const [historial, setHistorial] = useState<TotalMes[] | null>(null)
+  const [diaEditando, setDiaEditando] = useState<DiaMes | null>(null)
 
   useEffect(() => {
     setCargando(true)
@@ -77,6 +79,35 @@ const Mes = () => {
     } else {
       setMes((m) => m + 1)
     }
+  }
+
+  const handleGuardarCierre = async (totalPesos: number, totalDolares: number) => {
+    if (!diaEditando) return
+    await editarCierreDia(diaEditando.fecha, totalPesos, totalDolares)
+    setResumen((prev) => {
+      if (!prev) return prev
+      const semanas = prev.semanas.map((semana) => ({
+        ...semana,
+        dias: semana.dias.map((dia) =>
+          dia.fecha === diaEditando.fecha ? { ...dia, totalPesos, totalDolares, cerrado: true } : dia
+        ),
+      }))
+      const totalPesosMes = semanas.reduce(
+        (sum, s) => sum + s.dias.reduce((sumDia, d) => sumDia + d.totalPesos, 0),
+        0
+      )
+      const totalDolaresMes = semanas.reduce(
+        (sum, s) => sum + s.dias.reduce((sumDia, d) => sumDia + d.totalDolares, 0),
+        0
+      )
+      const semanasConTotales = semanas.map((semana) => ({
+        ...semana,
+        totalPesos: semana.dias.reduce((sum, d) => sum + d.totalPesos, 0),
+        totalDolares: semana.dias.reduce((sum, d) => sum + d.totalDolares, 0),
+      }))
+      return { ...prev, semanas: semanasConTotales, totalPesos: totalPesosMes, totalDolares: totalDolaresMes }
+    })
+    setDiaEditando(null)
   }
 
   return (
@@ -127,6 +158,7 @@ const Mes = () => {
                         <th>Día</th>
                         <th>Fecha</th>
                         <th className="text-end">Total</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -135,6 +167,11 @@ const Mes = () => {
                           <td>{capitalizar(dia.diaSemana)}</td>
                           <td>{dia.fecha.split('-').reverse().join('/')}</td>
                           <td className="text-end">{formatearMoneda(dia.totalPesos, dia.totalDolares)}</td>
+                          <td className="mes-fila-editar">
+                            <button type="button" className="mes-btn-editar-dia" onClick={() => setDiaEditando(dia)}>
+                              Editar
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -148,6 +185,16 @@ const Mes = () => {
 
       {historial && historial.some((m) => m.totalPesos > 0 || m.totalDolares > 0) && (
         <GraficoVentasMensuales meses={historial} />
+      )}
+
+      {diaEditando && (
+        <EditarCierreDiaModal
+          fecha={diaEditando.fecha}
+          totalPesosActual={diaEditando.totalPesos}
+          totalDolaresActual={diaEditando.totalDolares}
+          onCancelar={() => setDiaEditando(null)}
+          onGuardar={handleGuardarCierre}
+        />
       )}
     </div>
   )

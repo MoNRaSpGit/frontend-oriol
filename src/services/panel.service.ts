@@ -1,5 +1,5 @@
 import { apiFetch, errorDeRespuesta } from './apiClient'
-import type { PanelHoy, ResumenMes, HistorialMeses, TotalMes } from '../types/panel'
+import type { DiaMes, PanelHoy, ResumenMes, HistorialMeses, TotalMes } from '../types/panel'
 
 export async function getPanelHoy(): Promise<PanelHoy> {
   const res = await apiFetch('/panel/hoy')
@@ -26,4 +26,17 @@ export async function actualizarCambio(cambio: number): Promise<void> {
     body: JSON.stringify({ cambio }),
   })
   if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo actualizar el cambio'))
+}
+
+// Corrige el cierre de un dia ya cerrado (ej: el operario vendio algo
+// fuera del sistema). Desde ahi ese valor queda como fuente de verdad,
+// el cierre automatico de medianoche ya no lo vuelve a pisar.
+export async function editarCierreDia(fecha: string, totalPesos: number, totalDolares: number): Promise<DiaMes> {
+  const res = await apiFetch(`/cierres/${fecha}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ totalPesos, totalDolares }),
+  })
+  if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo corregir el cierre del dia'))
+  const data = (await res.json()) as { item: { fecha: string; totalPesos: number; totalDolares: number } }
+  return { ...data.item, diaSemana: '', cerrado: true }
 }

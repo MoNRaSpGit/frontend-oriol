@@ -29,6 +29,10 @@ export interface DiaMes {
   diaSemana: string
   totalPesos: number
   totalDolares: number
+  // true si ya paso por el cierre automatico de medianoche (o se corrigio
+  // a mano) — ese valor es la fuente de verdad. false = todavia se esta
+  // calculando en vivo (el dia de hoy).
+  cerrado: boolean
 }
 
 export interface SemanaMes {
