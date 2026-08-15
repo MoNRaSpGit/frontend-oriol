@@ -4,7 +4,7 @@ import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => {
   const isGithubPagesBuild = mode === "github-pages";
-  const base = isGithubPagesBuild ? "/OriolNuevo-Frontend/" : "/";
+  const base = isGithubPagesBuild ? "/frontend-oriol/" : "/";
 
   return {
     base,
