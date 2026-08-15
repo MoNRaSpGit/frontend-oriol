@@ -35,12 +35,11 @@ const fechaIsoAYMD = (fechaIso: string) => {
   return fechaUy.toISOString().slice(0, 10)
 }
 
-const formatearItems = (detalleJson: string) => {
+const parsearItems = (detalleJson: string): ItemVenta[] | null => {
   try {
-    const items = JSON.parse(detalleJson) as ItemVenta[]
-    return items.map((i) => `${i.cantidad} ${i.name}`).join(', ')
+    return JSON.parse(detalleJson) as ItemVenta[]
   } catch {
-    return 'detalle no disponible'
+    return null
   }
 }
 
@@ -111,7 +110,22 @@ const DetalleCliente = ({ cliente, onReimprimir }: Props) => {
                   {ETIQUETA_METODO[v.metodo_pago]}
                 </span>
               </div>
-              <div className="historial-detalle">llevó {formatearItems(v.detalle)}</div>
+              <div className="historial-detalle">
+                <span className="historial-detalle-titulo">Llevó:</span>
+                {(() => {
+                  const items = parsearItems(v.detalle)
+                  if (!items) return <span> detalle no disponible</span>
+                  return (
+                    <ul className="historial-detalle-items">
+                      {items.map((item, i) => (
+                        <li key={i}>
+                          {item.cantidad} {item.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )
+                })()}
+              </div>
               <div className="historial-pie">
                 <div className="historial-total">
                   {Number(v.total_pesos) > 0 && `$ ${Number(v.total_pesos).toFixed(2)} `}

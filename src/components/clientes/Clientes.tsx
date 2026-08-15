@@ -8,6 +8,7 @@ import ListaClientes from './ListaClientes'
 import DetalleCliente from './DetalleCliente'
 import BoletaReimpresa from './BoletaReimpresa'
 import '../../styles/clientes/clientes.scss'
+import '../../styles/scanner/modal.scss'
 
 const Clientes = () => {
   const [clientes, setClientes] = useState<Cliente[]>([])
@@ -15,6 +16,7 @@ const Clientes = () => {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
   const [boletaAReimprimir, setBoletaAReimprimir] = useState<Venta | null>(null)
+  const [modalAltaAbierto, setModalAltaAbierto] = useState(false)
 
   useEffect(() => {
     getClientes()
@@ -25,6 +27,7 @@ const Clientes = () => {
 
   const handleClienteCreado = (nuevo: Cliente) => {
     setClientes((prev) => [...prev, nuevo].sort((a, b) => a.nombre.localeCompare(b.nombre)))
+    setModalAltaAbierto(false)
   }
 
   if (boletaAReimprimir && clienteSeleccionado) {
@@ -44,12 +47,12 @@ const Clientes = () => {
 
       <div className="clientes-columnas">
         <div className="clientes-col">
-          <h5>Alta de cliente</h5>
-          <AltaCliente onCreado={handleClienteCreado} />
-        </div>
-
-        <div className="clientes-col">
-          <h5>Clientes</h5>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="mb-0">Clientes</h5>
+            <button type="button" className="btn btn-primary" onClick={() => setModalAltaAbierto(true)}>
+              Agregar cliente
+            </button>
+          </div>
           <ListaClientes
             clientes={clientes}
             cargando={cargando}
@@ -67,6 +70,22 @@ const Clientes = () => {
           )}
         </div>
       </div>
+
+      {modalAltaAbierto && (
+        <div className="modal-overlay" onClick={() => setModalAltaAbierto(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h4>Alta de cliente</h4>
+            <AltaCliente onCreado={handleClienteCreado} />
+            <button
+              type="button"
+              className="btn modal-btn-cancelar w-100 mt-2"
+              onClick={() => setModalAltaAbierto(false)}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

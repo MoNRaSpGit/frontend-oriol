@@ -2,7 +2,7 @@
 
 .clientes-columnas {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -170,7 +170,21 @@
 .historial-detalle {
   color: v.$color-text-muted;
   font-size: 0.95rem;
-  margin-top: 4px;
+  margin-top: 6px;
+}
+
+.historial-detalle-titulo {
+  font-weight: 600;
+}
+
+.historial-detalle-items {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+
+  li {
+    padding: 2px 0 2px 4px;
+  }
 }
 
 .historial-pie {
