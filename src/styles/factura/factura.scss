@@ -64,3 +64,21 @@
     display: none !important;
   }
 }
+
+/* ----------------
+   DETALLE DE PAGO (reimpresión de boletas de crédito con pagos)
+   ---------------- */
+.boleta-detalle-pago-titulo {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.boleta-detalle-pago-linea {
+  margin-bottom: 2px;
+  font-size: 0.95rem;
+}
+
+.boleta-detalle-pago-saldo {
+  margin-top: 6px;
+  font-weight: 700;
+}

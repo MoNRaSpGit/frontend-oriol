@@ -14,6 +14,11 @@ const PAGO_POR_METODO: Record<Venta['metodo_pago'], string> = {
 const formatearFecha = (fechaIso: string) =>
   new Date(fechaIso).toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
+const formatearFechaHora = (fechaIso: string) => {
+  const fecha = new Date(fechaIso)
+  return `${formatearFecha(fechaIso)} ${fecha.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}`
+}
+
 interface Props {
   venta: Venta
   cliente: Cliente
@@ -61,6 +66,8 @@ const BoletaReimpresa = ({ venta, cliente, onVolver }: Props) => {
     ubicacionCliente: 'MONTEVIDEO, URUGUAY',
   }
 
+  const tienePagos = venta.metodo_pago === 'credito' && venta.pagos.length > 0
+
   return (
     <>
       <BoletaImprimible
@@ -71,6 +78,20 @@ const BoletaReimpresa = ({ venta, cliente, onVolver }: Props) => {
         textoBotonVolver="Volver"
         onVolver={onVolver}
         onEditar={() => setMostrarEditar(true)}
+        detallePago={
+          tienePagos ? (
+            <div className="boleta-detalle-pago">
+              <div className="linea-divisoria"></div>
+              <p className="boleta-detalle-pago-titulo">Detalle de pago</p>
+              {venta.pagos.map((pago) => (
+                <p key={pago.id} className="boleta-detalle-pago-linea">
+                  Pago {pago.tipo === 'completo' ? 'completo' : 'parcial'} — {formatearFechaHora(pago.fecha)} — monto $ {pago.monto.toFixed(2)}
+                </p>
+              ))}
+              <p className="boleta-detalle-pago-saldo">Saldo pendiente: $ {venta.saldo_pendiente.toFixed(2)}</p>
+            </div>
+          ) : undefined
+        }
       />
 
       {mostrarEditar && (

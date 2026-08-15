@@ -81,10 +81,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 16px 20px;
   border-radius: v.$radius-base;
   background-color: v.$color-bg-gray;
   border: 1px solid v.$color-border-light;
+}
+
+.cliente-deuda-btn-pagar {
+  font-size: 0.85rem;
+  font-weight: 700;
+  background-color: v.$color-danger;
+  border: 2px solid v.$color-danger;
+  color: v.$color-white;
+  white-space: nowrap;
+
+  &:hover {
+    opacity: 0.9;
+  }
 }
 
 .cliente-deuda-box--con-deuda {
@@ -193,17 +207,37 @@
   }
 }
 
+.historial-pagos {
+  margin-top: 8px;
+}
+
+.historial-pago-linea {
+  font-size: 0.85rem;
+}
+
 .historial-pie {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-top: 8px;
+  gap: 8px;
 }
 
 .historial-total {
   font-size: 0.95rem;
   color: v.$color-text-dark;
   font-weight: 700;
+}
+
+.historial-saldo-pendiente {
+  color: v.$color-danger;
+  font-weight: 700;
+}
+
+.historial-botones {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .historial-btn-reimprimir {
@@ -216,6 +250,18 @@
   &:hover {
     background-color: v.$color-bg-gray;
     border-color: v.$color-text-dark;
+  }
+}
+
+.historial-btn-pagar {
+  font-size: 0.85rem;
+  font-weight: 700;
+  background-color: v.$color-danger;
+  border: 2px solid v.$color-danger;
+  color: v.$color-white;
+
+  &:hover {
+    opacity: 0.9;
   }
 }
 

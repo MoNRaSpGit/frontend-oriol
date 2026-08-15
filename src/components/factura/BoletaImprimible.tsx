@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { FaPrint } from 'react-icons/fa'
 import { useTasaDolar } from '../../hooks/useTasaDolar'
 import CabeceraFactura, { type DatosFactura } from './CabeceraFactura'
@@ -25,6 +25,7 @@ interface Props {
   textoBotonVolver: string
   onVolver: () => void
   onEditar?: () => void
+  detallePago?: ReactNode
 }
 
 const BoletaImprimible = ({
@@ -36,6 +37,7 @@ const BoletaImprimible = ({
   textoBotonVolver,
   onVolver,
   onEditar,
+  detallePago,
 }: Props) => {
   const [finalEnDolares, setFinalEnDolares] = useState(false)
   const tasaDolar = useTasaDolar()
@@ -59,6 +61,8 @@ const BoletaImprimible = ({
         setFinalEnDolares={setFinalEnDolares}
         tasaDolar={tasaDolar}
       />
+
+      {detallePago}
 
       <div className="factura-acciones-bar">
         <button className="btn btn-outline-secondary btn-lg" onClick={onVolver}>

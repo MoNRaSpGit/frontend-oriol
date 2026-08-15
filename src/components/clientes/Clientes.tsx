@@ -41,6 +41,11 @@ const Clientes = () => {
     setModalAltaAbierto(false)
   }
 
+  const handleClienteActualizado = (actualizado: Cliente) => {
+    setClientes((prev) => prev.map((c) => (c.id === actualizado.id ? actualizado : c)))
+    setClienteSeleccionado(actualizado)
+  }
+
   if (boletaAReimprimir && clienteSeleccionado) {
     return (
       <BoletaReimpresa
@@ -88,7 +93,11 @@ const Clientes = () => {
         <div className="clientes-col">
           <h5>Detalle</h5>
           {clienteSeleccionado ? (
-            <DetalleCliente cliente={clienteSeleccionado} onReimprimir={setBoletaAReimprimir} />
+            <DetalleCliente
+              cliente={clienteSeleccionado}
+              onReimprimir={setBoletaAReimprimir}
+              onClienteActualizado={handleClienteActualizado}
+            />
           ) : (
             <p className="text-muted">Seleccioná un cliente para ver su detalle.</p>
           )}
