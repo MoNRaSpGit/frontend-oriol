@@ -6,9 +6,10 @@ import '../../styles/productos/tarjeta-producto.scss'
 interface Props {
   producto: Producto
   onActualizado: (producto: Producto) => void
+  onEliminado: (id: number) => void
 }
 
-const TarjetaProducto = ({ producto, onActualizado }: Props) => {
+const TarjetaProducto = ({ producto, onActualizado, onEliminado }: Props) => {
   const [editando, setEditando] = useState(false)
 
   return (
@@ -46,6 +47,10 @@ const TarjetaProducto = ({ producto, onActualizado }: Props) => {
           onGuardado={(actualizado) => {
             setEditando(false)
             onActualizado(actualizado)
+          }}
+          onEliminado={(id) => {
+            setEditando(false)
+            onEliminado(id)
           }}
         />
       )}

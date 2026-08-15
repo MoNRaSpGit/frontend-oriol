@@ -4,7 +4,6 @@ import {
   FaFileInvoice,
   FaBarcode,
   FaUsers,
-  FaMoneyBillWave,
   FaChartBar,
   FaUserCircle,
   FaExclamationTriangle,
@@ -14,7 +13,7 @@ import { useCarrito } from '../../context/CarritoContext'
 import { getHealth } from '../../services/health.service'
 import '../../styles/layout/navbar.scss'
 
-export type Vista = 'productos' | 'factura' | 'scanner' | 'clientes' | 'pagos' | 'panel' | 'stock' | 'mes'
+export type Vista = 'productos' | 'factura' | 'scanner' | 'clientes' | 'panel' | 'stock' | 'mes'
 
 interface Props {
   vista: Vista
@@ -36,7 +35,6 @@ const TABS_VISIBLES: Tab[] = [
 const TABS_MENU: Tab[] = [
   { vista: 'productos', etiqueta: 'Productos', icono: <FaBoxOpen /> },
   { vista: 'clientes', etiqueta: 'Cuenta corriente', icono: <FaUsers /> },
-  { vista: 'pagos', etiqueta: 'Pagos', icono: <FaMoneyBillWave /> },
   { vista: 'panel', etiqueta: 'Panel', icono: <FaChartBar /> },
   { vista: 'mes', etiqueta: 'Mes', icono: <FaCalendarAlt /> },
 ]

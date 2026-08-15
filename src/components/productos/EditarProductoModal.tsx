@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { actualizarProducto, getProductoPorId } from '../../services/productos.service'
+import { actualizarProducto, eliminarProducto, getProductoPorId } from '../../services/productos.service'
 import { mensajeDeError } from '../../utils/errores'
 import type { Producto } from '../../types/producto'
 import '../../styles/scanner/modal.scss'
@@ -8,15 +8,18 @@ interface Props {
   codigo: number
   onCancelar: () => void
   onGuardado: (producto: Producto) => void
+  onEliminado?: (id: number) => void
 }
 
-const EditarProductoModal = ({ codigo, onCancelar, onGuardado }: Props) => {
+const EditarProductoModal = ({ codigo, onCancelar, onGuardado, onEliminado }: Props) => {
   const [producto, setProducto] = useState<Producto | null>(null)
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
+  const [confirmandoEliminar, setConfirmandoEliminar] = useState(false)
+  const [eliminando, setEliminando] = useState(false)
 
   useEffect(() => {
     getProductoPorId(codigo)
@@ -65,6 +68,44 @@ const EditarProductoModal = ({ codigo, onCancelar, onGuardado }: Props) => {
     }
   }
 
+  const handleEliminar = async () => {
+    if (!producto) return
+    setEliminando(true)
+    try {
+      await eliminarProducto(producto.id)
+      onEliminado?.(producto.id)
+    } catch (err) {
+      setError(mensajeDeError(err, 'No se pudo eliminar el producto. Probá de nuevo.'))
+      setEliminando(false)
+      setConfirmandoEliminar(false)
+    }
+  }
+
+  if (confirmandoEliminar && producto) {
+    return (
+      <div className="modal-overlay">
+        <div className="modal-box">
+          <h4>Eliminar producto</h4>
+          <p>¿Seguro que querés eliminar "{producto.name}"? Esta acción no se puede deshacer.</p>
+          {error && <p className="text-danger">{error}</p>}
+          <div className="modal-acciones">
+            <button
+              type="button"
+              className="btn modal-btn-cancelar"
+              onClick={() => setConfirmandoEliminar(false)}
+              disabled={eliminando}
+            >
+              Cancelar
+            </button>
+            <button type="button" className="btn btn-danger" onClick={handleEliminar} disabled={eliminando}>
+              {eliminando ? 'Eliminando...' : 'Eliminar'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="modal-overlay">
       <div className="modal-box">
@@ -107,6 +148,15 @@ const EditarProductoModal = ({ codigo, onCancelar, onGuardado }: Props) => {
                 {guardando ? 'Guardando...' : 'Guardar cambios'}
               </button>
             </div>
+
+            <button
+              type="button"
+              className="btn btn-outline-danger w-100 mt-2"
+              onClick={() => setConfirmandoEliminar(true)}
+              disabled={guardando}
+            >
+              Eliminar producto
+            </button>
           </form>
         )}
 

@@ -7,7 +7,6 @@ import Productos from './components/productos/Productos'
 import Factura from './components/factura/Factura'
 import Scanner from './components/scanner/Scanner'
 import Clientes from './components/clientes/Clientes'
-import Pagos from './components/pagos/Pagos'
 import PanelControl from './components/panel/PanelControl'
 import Stock from './components/stock/Stock'
 import Mes from './components/mes/Mes'
@@ -23,7 +22,6 @@ function App() {
         {vista === 'factura' && <Factura />}
         {vista === 'scanner' && <Scanner />}
         {vista === 'clientes' && <Clientes />}
-        {vista === 'pagos' && <Pagos />}
         {vista === 'panel' && <PanelControl />}
         {vista === 'stock' && <Stock />}
         {vista === 'mes' && <Mes />}

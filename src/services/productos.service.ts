@@ -102,6 +102,11 @@ export async function actualizarProducto(id: number, producto: Omit<Producto, 'i
   return aProducto(data.item)
 }
 
+export async function eliminarProducto(id: number): Promise<void> {
+  const res = await apiFetch(`/productos/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo eliminar el producto'))
+}
+
 export interface StockUpdate {
   stock?: number
   stock_minimo?: number | null

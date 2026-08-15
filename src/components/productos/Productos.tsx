@@ -42,6 +42,11 @@ const Productos = () => {
     mostrarToast(`"${producto.name}" se actualizó correctamente.`)
   }
 
+  const handleProductoEliminado = (id: number) => {
+    setProductos((prev) => prev.filter((p) => p.id !== id))
+    mostrarToast('Producto eliminado correctamente.')
+  }
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -73,7 +78,12 @@ const Productos = () => {
       ) : (
         <div className="row">
           {productos.map((producto) => (
-            <TarjetaProducto key={producto.id} producto={producto} onActualizado={handleProductoActualizado} />
+            <TarjetaProducto
+              key={producto.id}
+              producto={producto}
+              onActualizado={handleProductoActualizado}
+              onEliminado={handleProductoEliminado}
+            />
           ))}
         </div>
       )}
