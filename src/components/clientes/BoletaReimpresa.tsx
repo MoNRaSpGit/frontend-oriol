@@ -34,10 +34,14 @@ const BoletaReimpresa = ({ venta, cliente, onVolver }: Props) => {
     items = []
   }
 
+  // El detalle guardado de la venta solo tiene el nombre del producto (no
+  // una descripcion aparte, esa vive en el catalogo actual y puede haber
+  // cambiado desde entonces) -- se usa el nombre como descripcion para
+  // que la tabla de la boleta no quede en blanco.
   const productos: ProductoBoleta[] = items.map((item) => ({
     codigo: item.id,
     name: item.name,
-    descripcion: '',
+    descripcion: item.name,
     precio: item.precio,
     currency: item.currency,
     cantidad: item.cantidad,
