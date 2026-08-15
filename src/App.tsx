@@ -18,9 +18,6 @@ function App() {
   return (
     <ToastProvider>
       <CarritoProvider>
-        <div style={{ background: 'red', color: '#fff', textAlign: 'center', padding: '8px', fontWeight: 700 }}>
-          PRUEBA DE DEPLOY -- si ves esto, el cambio llego
-        </div>
         <NavBar vista={vista} setVista={setVista} />
         {vista === 'productos' && <Productos />}
         {vista === 'factura' && <Factura />}
