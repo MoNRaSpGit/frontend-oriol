@@ -168,22 +168,28 @@
 }
 
 .historial-detalle {
-  color: v.$color-text-muted;
-  font-size: 0.95rem;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
-.historial-detalle-titulo {
-  font-weight: 600;
-}
+.historial-detalle-tabla {
+  margin: 0;
+  background-color: v.$color-white;
+  font-size: 0.9rem;
 
-.historial-detalle-items {
-  list-style: none;
-  padding: 0;
-  margin: 4px 0 0;
+  th {
+    background-color: v.$color-bg-gray;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+  }
 
-  li {
-    padding: 2px 0 2px 4px;
+  td {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  td:nth-child(2) {
+    text-align: left;
   }
 }
 

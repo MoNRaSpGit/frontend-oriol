@@ -111,18 +111,39 @@ const DetalleCliente = ({ cliente, onReimprimir }: Props) => {
                 </span>
               </div>
               <div className="historial-detalle">
-                <span className="historial-detalle-titulo">Llevó:</span>
                 {(() => {
                   const items = parsearItems(v.detalle)
-                  if (!items) return <span> detalle no disponible</span>
+                  if (!items) return <p className="text-muted mb-0">Detalle no disponible</p>
                   return (
-                    <ul className="historial-detalle-items">
-                      {items.map((item, i) => (
-                        <li key={i}>
-                          {item.cantidad} {item.name}
-                        </li>
-                      ))}
-                    </ul>
+                    <table className="table table-bordered table-sm historial-detalle-tabla">
+                      <thead>
+                        <tr>
+                          <th>Cant.</th>
+                          <th>Descripción</th>
+                          <th>P. Unit.</th>
+                          <th>Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items.map((item, i) => {
+                          const simboloMoneda = item.currency === 'USD' ? 'U$' : '$'
+                          return (
+                            <tr key={i}>
+                              <td>{item.cantidad}</td>
+                              <td>{item.name}</td>
+                              <td>
+                                {simboloMoneda}
+                                {item.precio.toFixed(2)}
+                              </td>
+                              <td>
+                                {simboloMoneda}
+                                {(item.precio * item.cantidad).toFixed(2)}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
                   )
                 })()}
               </div>
