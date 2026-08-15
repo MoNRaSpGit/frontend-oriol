@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { getClientes } from '../../services/clientes.service'
 import { mensajeDeError } from '../../utils/errores'
 import type { Cliente } from '../../types/cliente'
@@ -10,6 +10,10 @@ import BoletaReimpresa from './BoletaReimpresa'
 import '../../styles/clientes/clientes.scss'
 import '../../styles/scanner/modal.scss'
 
+// Sin tildes y en minusculas, para que buscar "jose" tambien encuentre a
+// "José".
+const normalizar = (texto: string) => texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+
 const Clientes = () => {
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [clienteSeleccionado, setClienteSeleccionado] = useState<Cliente | null>(null)
@@ -17,6 +21,7 @@ const Clientes = () => {
   const [error, setError] = useState('')
   const [boletaAReimprimir, setBoletaAReimprimir] = useState<Venta | null>(null)
   const [modalAltaAbierto, setModalAltaAbierto] = useState(false)
+  const [busqueda, setBusqueda] = useState('')
 
   useEffect(() => {
     getClientes()
@@ -24,6 +29,12 @@ const Clientes = () => {
       .catch((err) => setError(mensajeDeError(err, 'No se pudo cargar la lista de clientes.')))
       .finally(() => setCargando(false))
   }, [])
+
+  const clientesFiltrados = useMemo(() => {
+    const query = normalizar(busqueda.trim())
+    if (!query) return clientes
+    return clientes.filter((c) => normalizar(c.nombre).includes(query))
+  }, [clientes, busqueda])
 
   const handleClienteCreado = (nuevo: Cliente) => {
     setClientes((prev) => [...prev, nuevo].sort((a, b) => a.nombre.localeCompare(b.nombre)))
@@ -53,12 +64,25 @@ const Clientes = () => {
               Agregar cliente
             </button>
           </div>
-          <ListaClientes
-            clientes={clientes}
-            cargando={cargando}
-            clienteSeleccionadoId={clienteSeleccionado?.id ?? null}
-            onSeleccionar={setClienteSeleccionado}
+
+          <input
+            type="text"
+            className="form-control mb-3"
+            placeholder="Buscar cliente por nombre..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
           />
+
+          {!cargando && clientes.length > 0 && clientesFiltrados.length === 0 ? (
+            <p className="text-muted">No se encontraron clientes con ese nombre.</p>
+          ) : (
+            <ListaClientes
+              clientes={clientesFiltrados}
+              cargando={cargando}
+              clienteSeleccionadoId={clienteSeleccionado?.id ?? null}
+              onSeleccionar={setClienteSeleccionado}
+            />
+          )}
         </div>
 
         <div className="clientes-col">
