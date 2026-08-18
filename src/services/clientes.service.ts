@@ -8,6 +8,7 @@ interface ClienteApi {
   telefono: string | null
   cedula: string | null
   deuda: number
+  deudaDolares: number
   createdAt: string
 }
 
@@ -18,6 +19,7 @@ function aCliente(item: ClienteApi): Cliente {
     telefono: item.telefono,
     cedula: item.cedula,
     deuda: String(item.deuda),
+    deuda_dolares: String(item.deudaDolares),
     created_at: item.createdAt,
   }
 }
@@ -27,6 +29,7 @@ interface PagoCreditoApi {
   ventaId: number | null
   clienteId: number
   monto: number
+  moneda: 'UYU' | 'USD'
   tipo: TipoPagoCredito
   saldoAnterior: number
   saldoNuevo: number
@@ -39,6 +42,7 @@ function aPagoCredito(item: PagoCreditoApi): PagoCredito {
     ventaId: item.ventaId,
     clienteId: item.clienteId,
     monto: item.monto,
+    moneda: item.moneda,
     tipo: item.tipo,
     saldoAnterior: item.saldoAnterior,
     saldoNuevo: item.saldoNuevo,
@@ -53,8 +57,10 @@ export interface VentaApi {
   fecha: string
   totalPesos: number
   totalDolares: number
-  montoPagado: number
-  saldoPendiente: number
+  montoPagadoPesos: number
+  montoPagadoDolares: number
+  saldoPendientePesos: number
+  saldoPendienteDolares: number
   pagoIndividualHabilitado: boolean
   detalle: unknown
   pagos: PagoCreditoApi[]
@@ -69,8 +75,10 @@ export function aVenta(item: VentaApi): Venta {
     total_pesos: String(item.totalPesos),
     total_dolares: String(item.totalDolares),
     detalle: JSON.stringify(item.detalle),
-    monto_pagado: item.montoPagado,
-    saldo_pendiente: item.saldoPendiente,
+    monto_pagado_pesos: item.montoPagadoPesos,
+    monto_pagado_dolares: item.montoPagadoDolares,
+    saldo_pendiente_pesos: item.saldoPendientePesos,
+    saldo_pendiente_dolares: item.saldoPendienteDolares,
     pago_individual_habilitado: item.pagoIndividualHabilitado,
     pagos: item.pagos.map(aPagoCredito),
   }
@@ -98,16 +106,4 @@ export async function getHistorialCliente(clienteId: number): Promise<Venta[]> {
   if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo obtener el historial'))
   const data = (await res.json()) as { items: VentaApi[] }
   return data.items.map(aVenta)
-}
-
-// Pago (total o parcial) contra la deuda vieja acumulada del cliente, sin
-// atarlo a ninguna boleta puntual (ver pago_individual_habilitado en Venta).
-export async function pagarDeudaCliente(clienteId: number, tipo: TipoPagoCredito, monto?: number): Promise<Cliente> {
-  const res = await apiFetch(`/clientes/${clienteId}/pagos-deuda`, {
-    method: 'POST',
-    body: JSON.stringify({ tipo, monto }),
-  })
-  if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo registrar el pago'))
-  const data = (await res.json()) as { item: ClienteApi }
-  return aCliente(data.item)
 }

@@ -1,6 +1,6 @@
 import { apiFetch, errorDeRespuesta } from './apiClient'
 import { aVenta, type VentaApi } from './clientes.service'
-import type { ItemVenta, MetodoPago, TipoPagoCredito, Venta } from '../types/venta'
+import type { ItemVenta, MetodoPago, OriolCurrency, TipoPagoCredito, Venta } from '../types/venta'
 
 export interface NuevaVentaCredito {
   cliente_id: number
@@ -59,12 +59,18 @@ export async function actualizarVenta(id: number, cambios: VentaActualizar): Pro
   if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo actualizar la venta'))
 }
 
-// Pago (total o parcial) de una boleta de credito puntual -- solo
+// Pago (total o parcial) de una boleta de credito puntual, contra uno de
+// los dos saldos independientes de la boleta (pesos o dolares) -- solo
 // disponible si la boleta trae pago_individual_habilitado en true.
-export async function pagarBoletaCredito(ventaId: number, tipo: TipoPagoCredito, monto?: number): Promise<Venta> {
+export async function pagarBoletaCredito(
+  ventaId: number,
+  moneda: OriolCurrency,
+  tipo: TipoPagoCredito,
+  monto?: number
+): Promise<Venta> {
   const res = await apiFetch(`/ventas/${ventaId}/pagos-credito`, {
     method: 'POST',
-    body: JSON.stringify({ tipo, monto }),
+    body: JSON.stringify({ moneda, tipo, monto }),
   })
   if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo registrar el pago'))
   const data = (await res.json()) as { item: VentaApi }

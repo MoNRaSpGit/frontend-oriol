@@ -4,5 +4,6 @@ export interface Cliente {
   telefono: string | null
   cedula: string | null
   deuda: string
+  deuda_dolares: string
   created_at: string
 }

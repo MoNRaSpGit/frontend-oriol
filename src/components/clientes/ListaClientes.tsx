@@ -15,6 +15,7 @@ const ListaClientes = ({ clientes, cargando, clienteSeleccionadoId, onSelecciona
     <ul className="cliente-lista">
       {clientes.map((c) => {
         const tieneDeuda = Number(c.deuda) > 0
+        const tieneDeudaDolares = Number(c.deuda_dolares) > 0
         return (
           <li
             key={c.id}
@@ -25,6 +26,11 @@ const ListaClientes = ({ clientes, cargando, clienteSeleccionadoId, onSelecciona
             <div className={`cliente-item-deuda ${tieneDeuda ? 'cliente-item-deuda--activa' : ''}`}>
               Deuda: $ {Number(c.deuda).toFixed(2)}
             </div>
+            {tieneDeudaDolares && (
+              <div className="cliente-item-deuda cliente-item-deuda--activa">
+                Deuda: U$ {Number(c.deuda_dolares).toFixed(2)}
+              </div>
+            )}
           </li>
         )
       })}

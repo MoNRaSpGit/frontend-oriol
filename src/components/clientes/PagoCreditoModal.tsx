@@ -1,20 +1,22 @@
 import { useState, type FormEvent } from 'react'
-import type { TipoPagoCredito } from '../../types/venta'
+import type { OriolCurrency, TipoPagoCredito } from '../../types/venta'
 import '../../styles/scanner/modal.scss'
 
 interface Props {
   titulo: string
   subtitulo?: string
+  moneda: OriolCurrency
   saldoPendiente: number
   onCancelar: () => void
   onConfirmar: (tipo: TipoPagoCredito, monto?: number) => Promise<void>
 }
 
-const PagoCreditoModal = ({ titulo, subtitulo, saldoPendiente, onCancelar, onConfirmar }: Props) => {
+const PagoCreditoModal = ({ titulo, subtitulo, moneda, saldoPendiente, onCancelar, onConfirmar }: Props) => {
   const [tipo, setTipo] = useState<TipoPagoCredito>('completo')
   const [monto, setMonto] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
+  const simbolo = moneda === 'USD' ? 'U$' : '$'
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -27,7 +29,7 @@ const PagoCreditoModal = ({ titulo, subtitulo, saldoPendiente, onCancelar, onCon
         return
       }
       if (montoNum > saldoPendiente) {
-        setError(`El monto no puede ser mayor al saldo pendiente ($ ${saldoPendiente.toFixed(2)}).`)
+        setError(`El monto no puede ser mayor al saldo pendiente (${simbolo} ${saldoPendiente.toFixed(2)}).`)
         return
       }
       setEnviando(true)
@@ -57,7 +59,7 @@ const PagoCreditoModal = ({ titulo, subtitulo, saldoPendiente, onCancelar, onCon
 
         <div className="modal-total-destacado">
           <span className="modal-total-label">Saldo pendiente</span>
-          <span className="modal-total-valor">$ {saldoPendiente.toFixed(2)}</span>
+          <span className="modal-total-valor">{simbolo} {saldoPendiente.toFixed(2)}</span>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -92,7 +94,7 @@ const PagoCreditoModal = ({ titulo, subtitulo, saldoPendiente, onCancelar, onCon
                 value={monto}
                 onChange={(e) => setMonto(e.target.value)}
                 autoFocus
-                placeholder={`Máximo $ ${saldoPendiente.toFixed(2)}`}
+                placeholder={`Máximo ${simbolo} ${saldoPendiente.toFixed(2)}`}
               />
             </div>
           )}
