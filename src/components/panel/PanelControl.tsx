@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { getPanelHoy, actualizarCambio } from '../../services/panel.service'
+import { getTasaDolar, actualizarTasaDolar } from '../../services/config.service'
 import { mensajeDeError } from '../../utils/errores'
 import EditarCambioModal from './EditarCambioModal'
 import EditarPorcentajeGananciaModal from './EditarPorcentajeGananciaModal'
+import EditarTasaDolarModal from './EditarTasaDolarModal'
 import type { PanelHoy, TotalPorMoneda } from '../../types/panel'
 import '../../styles/panel/panel.scss'
 
@@ -49,6 +51,8 @@ const PanelControl = () => {
   const [error, setError] = useState('')
   const [editandoCambio, setEditandoCambio] = useState(false)
   const [editandoPorcentaje, setEditandoPorcentaje] = useState(false)
+  const [editandoTasaDolar, setEditandoTasaDolar] = useState(false)
+  const [tasaDolar, setTasaDolar] = useState<number | null>(null)
   const [porcentajeGanancia, setPorcentajeGanancia] = useState(getPorcentajeGananciaGuardado)
   const [verTodosMovimientos, setVerTodosMovimientos] = useState(false)
   const [detalleAbierto, setDetalleAbierto] = useState<number | null>(null)
@@ -64,12 +68,21 @@ const PanelControl = () => {
 
   useEffect(() => {
     cargarPanel()
+    getTasaDolar()
+      .then(setTasaDolar)
+      .catch(() => {})
   }, [])
 
   const handleGuardarCambio = async (valor: number) => {
     await actualizarCambio(valor)
     setEditandoCambio(false)
     cargarPanel()
+  }
+
+  const handleGuardarTasaDolar = async (valor: number) => {
+    const guardado = await actualizarTasaDolar(valor)
+    setTasaDolar(guardado)
+    setEditandoTasaDolar(false)
   }
 
   const handleGuardarPorcentaje = (valor: number) => {
@@ -120,6 +133,18 @@ const PanelControl = () => {
             <div className="panel-metric-titulo">Ganancia ({porcentajeGanancia}%)</div>
             <div className="panel-metric-valor">$ {((panel.ventasDelDia * porcentajeGanancia) / 100).toFixed(2)}</div>
           </div>
+
+          {tasaDolar !== null && (
+            <div
+              className="panel-metric panel-metric--editable"
+              onClick={() => setEditandoTasaDolar(true)}
+              title="Click para editar la tasa"
+            >
+              <div className="panel-metric-titulo">Tasa dólar</div>
+              <div className="panel-metric-valor">$ {tasaDolar.toFixed(2)}</div>
+              <div className="panel-metric-editar">editar</div>
+            </div>
+          )}
         </div>
 
         <button type="button" className="panel-caja-inicial-link" onClick={() => setEditandoCambio(true)}>
@@ -223,6 +248,14 @@ const PanelControl = () => {
           valorActual={porcentajeGanancia}
           onCancelar={() => setEditandoPorcentaje(false)}
           onGuardar={handleGuardarPorcentaje}
+        />
+      )}
+
+      {editandoTasaDolar && tasaDolar !== null && (
+        <EditarTasaDolarModal
+          valorActual={tasaDolar}
+          onCancelar={() => setEditandoTasaDolar(false)}
+          onGuardar={handleGuardarTasaDolar}
         />
       )}
     </div>
