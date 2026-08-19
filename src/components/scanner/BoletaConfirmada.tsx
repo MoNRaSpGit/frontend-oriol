@@ -58,7 +58,6 @@ const BoletaConfirmada = ({
   return (
     <>
       <BoletaImprimible
-        titulo="Venta confirmada"
         datosFactura={datosFactura}
         productos={productos}
         totalPesos={totalPesos}

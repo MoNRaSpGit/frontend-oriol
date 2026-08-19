@@ -16,7 +16,6 @@ import '../../styles/factura/pie.scss'
 export { type DatosFactura }
 
 interface Props {
-  titulo?: string
   datosFactura: DatosFactura
   productos: ProductoBoleta[]
   totalPesos: number
@@ -28,7 +27,6 @@ interface Props {
 }
 
 const BoletaImprimible = ({
-  titulo,
   datosFactura,
   productos,
   totalPesos,
@@ -43,8 +41,6 @@ const BoletaImprimible = ({
 
   return (
     <div className="factura-container">
-      {titulo && <h2 className="text-center mt-4 mb-3">{titulo}</h2>}
-
       <CabeceraFactura datosFactura={datosFactura} finalEnDolares={finalEnDolares} onEditar={onEditar} />
 
       <div className="linea-divisoria"></div>

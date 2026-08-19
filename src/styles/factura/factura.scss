@@ -28,8 +28,9 @@
    ---------------- */
 .factura-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  // flex-start (no center) para que el logo quede arriba en vez de
+  // centrado con la caja de datos, que es mas alta.
+  align-items: flex-start;
   gap: 30px;
 }
 
