@@ -8,8 +8,10 @@
 
 .app-navbar-top {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 6px 12px;
   margin-bottom: 10px;
 }
 
@@ -24,6 +26,31 @@
   gap: 8px;
   font-size: 0.95rem;
   color: #c7d0dc;
+}
+
+// Siempre visible en la barra superior, sin importar la seccion en la que
+// se este -- misma tasa que usa el checkout para convertir pesos/dolares.
+.app-navbar-tasa {
+  border: none;
+  background: none;
+  padding: 4px 10px;
+  border-radius: v.$radius-base;
+  color: v.$color-white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.app-navbar-tasa-editar {
+  margin-left: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9fc4f2;
+  text-decoration: underline;
 }
 
 .app-navbar-status-dot {
@@ -195,5 +222,14 @@
 
   .nav-link {
     padding: 12px;
+  }
+
+  .app-navbar-tasa {
+    font-size: 0.85rem;
+    padding: 4px 6px;
+  }
+
+  .app-navbar-tasa-editar {
+    display: none;
   }
 }

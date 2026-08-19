@@ -11,6 +11,8 @@ import {
 } from 'react-icons/fa'
 import { useCarrito } from '../../context/CarritoContext'
 import { getHealth } from '../../services/health.service'
+import { getTasaDolar, actualizarTasaDolar } from '../../services/config.service'
+import EditarTasaDolarModal from './EditarTasaDolarModal'
 import '../../styles/layout/navbar.scss'
 
 export type Vista = 'productos' | 'factura' | 'scanner' | 'clientes' | 'panel' | 'stock' | 'mes'
@@ -51,6 +53,8 @@ const NavBar = ({ vista, setVista }: Props) => {
   const [apiStatus, setApiStatus] = useState<'checking' | 'ok' | 'error'>('checking')
   const [menuAbierto, setMenuAbierto] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const [tasaDolar, setTasaDolar] = useState<number | null>(null)
+  const [editandoTasaDolar, setEditandoTasaDolar] = useState(false)
 
   useEffect(() => {
     const chequearSalud = () => {
@@ -72,6 +76,22 @@ const NavBar = ({ vista, setVista }: Props) => {
     return () => clearInterval(intervalId)
   }, [])
 
+  // La tasa se muestra siempre en la barra superior (no solo en el Panel)
+  // para que se vea "a cuanto la pusimos" sin importar en que seccion se
+  // esta -- es la misma fuente de verdad que usa el checkout para convertir
+  // pesos/dolares (ver useTasaDolar).
+  useEffect(() => {
+    getTasaDolar()
+      .then(setTasaDolar)
+      .catch(() => {})
+  }, [])
+
+  const handleGuardarTasaDolar = async (valor: number) => {
+    const guardado = await actualizarTasaDolar(valor)
+    setTasaDolar(guardado)
+    setEditandoTasaDolar(false)
+  }
+
   useEffect(() => {
     if (!menuAbierto) return
     const cerrarSiEsAfuera = (e: MouseEvent) => {
@@ -92,6 +112,16 @@ const NavBar = ({ vista, setVista }: Props) => {
     <nav className="app-navbar">
       <div className="app-navbar-top">
         <div className="app-navbar-brand">Agro Insumos</div>
+        {tasaDolar !== null && (
+          <button
+            type="button"
+            className="app-navbar-tasa"
+            onClick={() => setEditandoTasaDolar(true)}
+            title="Click para editar la tasa"
+          >
+            Tasa dólar: $ {tasaDolar.toFixed(2)} <span className="app-navbar-tasa-editar">editar</span>
+          </button>
+        )}
         <div className={`app-navbar-status app-navbar-status--${apiStatus}`}>
           <span className="app-navbar-status-dot" />
           {apiStatus === 'checking' && 'Conectando...'}
@@ -99,6 +129,14 @@ const NavBar = ({ vista, setVista }: Props) => {
           {apiStatus === 'error' && 'Sin conexión'}
         </div>
       </div>
+
+      {editandoTasaDolar && tasaDolar !== null && (
+        <EditarTasaDolarModal
+          valorActual={tasaDolar}
+          onCancelar={() => setEditandoTasaDolar(false)}
+          onGuardar={handleGuardarTasaDolar}
+        />
+      )}
 
       <div className="app-navbar-links">
         {TABS_VISIBLES.map((tab) => (
