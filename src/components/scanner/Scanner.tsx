@@ -277,8 +277,9 @@ const Scanner = () => {
               <button
                 type="button"
                 className="scanner-item-quitar"
-                onClick={() => removeProduct(p.codigo)}
-                aria-label={`Quitar ${p.name}`}
+                onClick={() => (p.cantidad > 1 ? updateProductQuantity(p.codigo, p.cantidad - 1) : removeProduct(p.codigo))}
+                title={p.cantidad > 1 ? 'Restar 1 unidad' : 'Quitar producto'}
+                aria-label={`Restar 1 unidad de ${p.name}`}
               >
                 ×
               </button>
