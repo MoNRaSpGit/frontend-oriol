@@ -7,7 +7,6 @@ import PieFactura from './PieFactura'
 import type { ProductoBoleta } from '../../context/CarritoContext'
 import '../../styles/factura/factura.scss'
 import '../../styles/factura/logo.scss'
-import '../../styles/factura/dueno.scss'
 import '../../styles/factura/rectangulo.scss'
 import '../../styles/factura/pie.scss'
 

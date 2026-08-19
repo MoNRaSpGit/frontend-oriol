@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getProductos } from '../../services/productos.service'
+import { buscarProductosPorNombre, getProductos } from '../../services/productos.service'
 import { mensajeDeError } from '../../utils/errores'
 import type { Producto } from '../../types/producto'
 import AjustarStockModal from './AjustarStockModal'
@@ -22,6 +22,10 @@ const Stock = () => {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null)
+  const [busqueda, setBusqueda] = useState('')
+  const [resultadosBusqueda, setResultadosBusqueda] = useState<Producto[]>([])
+  const [buscando, setBuscando] = useState(false)
+  const [errorBusqueda, setErrorBusqueda] = useState('')
 
   useEffect(() => {
     getProductos()
@@ -30,8 +34,29 @@ const Stock = () => {
       .finally(() => setCargando(false))
   }, [])
 
+  // Busca en TODO el catalogo (no solo los de stock bajo) para poder
+  // encontrar y editar cualquier producto desde esta pantalla.
+  useEffect(() => {
+    if (busqueda.trim().length < 2) {
+      setResultadosBusqueda([])
+      return
+    }
+    setBuscando(true)
+    const timeoutId = setTimeout(() => {
+      buscarProductosPorNombre(busqueda.trim())
+        .then((resultados) => {
+          setResultadosBusqueda(resultados)
+          setErrorBusqueda('')
+        })
+        .catch((err) => setErrorBusqueda(mensajeDeError(err, 'No se pudo buscar productos.')))
+        .finally(() => setBuscando(false))
+    }, 300)
+    return () => clearTimeout(timeoutId)
+  }, [busqueda])
+
   const handleActualizado = (actualizado: Producto) => {
     setProductos((prev) => prev.map((p) => (p.id === actualizado.id ? actualizado : p)))
+    setResultadosBusqueda((prev) => prev.map((p) => (p.id === actualizado.id ? actualizado : p)))
     setProductoSeleccionado(null)
   }
 
@@ -41,6 +66,50 @@ const Stock = () => {
 
   return (
     <div className="container mt-4 stock-container">
+      <h2 className="mb-3">Buscar producto</h2>
+      <div className="mb-4" style={{ maxWidth: 480 }}>
+        <input
+          type="text"
+          className="form-control form-control-lg"
+          placeholder="Buscar producto por nombre para editarlo..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+      </div>
+
+      {errorBusqueda && <div className="alert alert-danger">{errorBusqueda}</div>}
+
+      {busqueda.trim().length >= 2 && (
+        <div className="stock-lista mb-4">
+          {buscando ? (
+            <p className="text-muted">Buscando...</p>
+          ) : resultadosBusqueda.length === 0 ? (
+            <p className="text-muted">No se encontraron productos con ese nombre.</p>
+          ) : (
+            resultadosBusqueda.map((p) => (
+              <div
+                key={p.id}
+                className={`stock-item ${nivelDeStock(p.stock, p.stock_minimo) ? `stock-item--${nivelDeStock(p.stock, p.stock_minimo)}` : ''}`}
+                onClick={() => setProductoSeleccionado(p)}
+                role="button"
+              >
+                <div className="stock-item-info">
+                  <div className="stock-item-nombre">{p.name}</div>
+                  <div className="stock-item-precio">
+                    {p.currency === 'USD' ? 'U$' : '$'}
+                    {p.price}
+                  </div>
+                </div>
+                <div className="stock-item-cantidad">
+                  <span className="stock-item-badge">{p.stock}</span>
+                  <span className="stock-item-label">{p.stock === 1 ? 'unidad' : 'unidades'}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
       <h2 className="mb-4">Stock bajo</h2>
 
       {error && <div className="alert alert-danger">{error}</div>}

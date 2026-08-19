@@ -310,6 +310,8 @@ const Scanner = () => {
       {productoEditando !== null && (
         <EditarProductoModal
           codigo={productoEditando}
+          cantidadEnCarrito={productosSeleccionados.find((p) => p.codigo === productoEditando)?.cantidad}
+          onCantidadGuardada={(cantidad) => updateProductQuantity(productoEditando, cantidad)}
           onCancelar={() => setProductoEditando(null)}
           onGuardado={handleProductoActualizado}
           onEliminado={handleProductoEliminado}

@@ -52,7 +52,7 @@ const BoletaConfirmada = ({
     rutReceptor: '',
     nombreCliente: nombreCliente || 'Cliente final',
     direccionCliente: '',
-    ubicacionCliente: 'MONTEVIDEO, URUGUAY',
+    ubicacionCliente: 'TACUAREMBÓ, URUGUAY',
   }
 
   return (

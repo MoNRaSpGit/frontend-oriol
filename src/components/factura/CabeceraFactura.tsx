@@ -24,16 +24,8 @@ const CabeceraFactura = ({ datosFactura, finalEnDolares, onEditar }: Props) => {
 
   return (
     <div className="factura-header">
-      <div className="logo-dueno-container">
-        <div className="factura-logo-container">
-          {/* Coloca tu logo en src/assets/logo.png */}
-          <div style={{ fontWeight: 'bold', fontSize: 18 }}>LOGO</div>
-        </div>
-        <div className="dueno">
-          <div className="dueno-nombre"></div>
-          <div className="dueno-nombre">NOMBRE DE LA EMPRESA</div>
-          <div className="dueno-telefono">00000000 - 000000000</div>
-        </div>
+      <div className="factura-logo-container">
+        <img src={`${import.meta.env.BASE_URL}LogoOriol.jpeg`} alt="Agro Insumos Tacuarembó" className="factura-logo" />
       </div>
 
       <div

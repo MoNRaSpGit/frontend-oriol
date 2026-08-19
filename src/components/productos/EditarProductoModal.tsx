@@ -9,12 +9,18 @@ interface Props {
   onCancelar: () => void
   onGuardado: (producto: Producto) => void
   onEliminado?: (id: number) => void
+  // Solo se pasan desde el Scanner, para poder ajustar de una la cantidad
+  // de este producto en el carrito actual (ej: poner "50" en vez de hacer
+  // 50 clicks de +1). No aplica editando desde el catálogo de Productos.
+  cantidadEnCarrito?: number
+  onCantidadGuardada?: (cantidad: number) => void
 }
 
-const EditarProductoModal = ({ codigo, onCancelar, onGuardado, onEliminado }: Props) => {
+const EditarProductoModal = ({ codigo, onCancelar, onGuardado, onEliminado, cantidadEnCarrito, onCantidadGuardada }: Props) => {
   const [producto, setProducto] = useState<Producto | null>(null)
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
+  const [cantidad, setCantidad] = useState(cantidadEnCarrito !== undefined ? String(cantidadEnCarrito) : '')
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
@@ -48,6 +54,14 @@ const EditarProductoModal = ({ codigo, onCancelar, onGuardado, onEliminado }: Pr
       setError('Ingresá un precio válido.')
       return
     }
+    let cantidadNum: number | null = null
+    if (cantidadEnCarrito !== undefined) {
+      cantidadNum = Number(cantidad)
+      if (!Number.isInteger(cantidadNum) || cantidadNum <= 0) {
+        setError('Ingresá una cantidad válida (mayor a 0).')
+        return
+      }
+    }
 
     setError('')
     setGuardando(true)
@@ -61,6 +75,9 @@ const EditarProductoModal = ({ codigo, onCancelar, onGuardado, onEliminado }: Pr
         stock: producto.stock,
         stock_minimo: producto.stock_minimo,
       })
+      if (cantidadNum !== null && cantidadNum !== cantidadEnCarrito) {
+        onCantidadGuardada?.(cantidadNum)
+      }
       onGuardado(actualizado)
     } catch (err) {
       setError(mensajeDeError(err, 'No se pudo guardar el producto. Probá de nuevo.'))
@@ -137,6 +154,21 @@ const EditarProductoModal = ({ codigo, onCancelar, onGuardado, onEliminado }: Pr
                 onChange={(e) => setPrice(e.target.value)}
               />
             </div>
+
+            {cantidadEnCarrito !== undefined && (
+              <div className="mb-3">
+                <label className="form-label">Cantidad en este carrito</label>
+                <input
+                  type="number"
+                  step="1"
+                  min="1"
+                  className="form-control"
+                  value={cantidad}
+                  onChange={(e) => setCantidad(e.target.value)}
+                />
+                <small className="text-muted">Cambiala directo en vez de sumar de a uno.</small>
+              </div>
+            )}
 
             {error && <p className="text-danger">{error}</p>}
 

@@ -150,7 +150,8 @@ const Clientes = () => {
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <h4>Eliminar cliente</h4>
             <p>
-              ¿Seguro que querés eliminar a <strong>{clienteAEliminar.nombre}</strong>? Esta acción no se puede deshacer.
+              ¿Seguro que querés eliminar a <strong>{clienteAEliminar.nombre}</strong>? Se van a perder también todas sus
+              compras y pagos registrados. Esta acción no se puede deshacer.
             </p>
             {errorEliminar && <p className="text-danger">{errorEliminar}</p>}
             <div className="modal-acciones">

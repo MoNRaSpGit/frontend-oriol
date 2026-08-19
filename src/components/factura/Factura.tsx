@@ -8,7 +8,6 @@ import PieFactura from './PieFactura'
 import EditarDatosFacturaModal from './EditarDatosFacturaModal'
 import '../../styles/factura/factura.scss'
 import '../../styles/factura/logo.scss'
-import '../../styles/factura/dueno.scss'
 import '../../styles/factura/rectangulo.scss'
 import '../../styles/factura/pie.scss'
 
@@ -32,7 +31,7 @@ const Factura = () => {
     rutReceptor: '',
     nombreCliente: 'Cliente final',
     direccionCliente: '',
-    ubicacionCliente: 'MONTEVIDEO, URUGUAY',
+    ubicacionCliente: 'TACUAREMBÓ, URUGUAY',
   })
 
   if (!productosSeleccionados.length) {

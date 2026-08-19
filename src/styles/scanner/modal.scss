@@ -17,6 +17,12 @@
   padding: 32px;
   width: 100%;
   max-width: 460px;
+  // Sin esto, un modal con muchos campos (ej: editar datos de la boleta)
+  // podia salir mas alto que la pantalla -- como el overlay lo centra
+  // verticalmente y no habia como hacer scroll, los campos de mas abajo
+  // quedaban tapados/inalcanzables en resoluciones chicas o notebooks.
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
   box-shadow: 0px 16px 40px rgba(0, 0, 0, 0.28);
   outline: none;
 

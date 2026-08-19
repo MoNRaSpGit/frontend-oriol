@@ -1,44 +1,18 @@
-@media print {
-  .factura-logo-container {
-    height: 260px;
-    width: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-    z-index: 1;
-  }
-
-  .factura-logo {
-    height: 260px;
-    width: 200px;
-    border: none;
-    outline: none;
-    filter: brightness(1.1);
-    clip-path: inset(2px 2px 2px 2px);
-  }
+// El logo real (LogoOriol.jpeg, 591x320 aprox.) ya incluye el nombre de la
+// empresa, la sucursal y el telefono adentro de la imagen -- por eso no
+// hay un bloque de texto aparte al lado (ver CabeceraFactura.tsx). El
+// contenedor respeta esa proporcion (~1.85:1) para no deformarlo.
+.factura-logo-container {
+  width: 260px;
+  height: 141px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-@media screen {
-  .factura-logo-container {
-    height: 260px;
-    width: 400px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-    z-index: 1;
-    margin-left: 100px;
-  }
-
-  .factura-logo {
-    height: 360px;
-    width: 400px;
-    border: none;
-    outline: none;
-    filter: brightness(1.1);
-    clip-path: inset(2px 2px 2px 2px);
-  }
+.factura-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }

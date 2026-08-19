@@ -63,7 +63,7 @@ const BoletaReimpresa = ({ venta, cliente, onVolver }: Props) => {
     rutReceptor: '',
     nombreCliente,
     direccionCliente: '',
-    ubicacionCliente: 'MONTEVIDEO, URUGUAY',
+    ubicacionCliente: 'TACUAREMBÓ, URUGUAY',
   }
 
   const tienePagos = venta.metodo_pago === 'credito' && venta.pagos.length > 0
