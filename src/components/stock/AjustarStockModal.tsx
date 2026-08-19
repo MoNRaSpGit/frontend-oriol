@@ -33,18 +33,6 @@ const AjustarStockModal = ({ producto, onCancelar, onActualizado }: Props) => {
     }
   }
 
-  const handleEstaBienAsi = async () => {
-    setError('')
-    setGuardando(true)
-    try {
-      const actualizado = await actualizarStockProducto(producto.id, { stock_minimo: producto.stock })
-      onActualizado(actualizado)
-    } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo guardar. Probá de nuevo.'))
-      setGuardando(false)
-    }
-  }
-
   return (
     <div className="modal-overlay">
       <div className="modal-box">
@@ -75,18 +63,6 @@ const AjustarStockModal = ({ producto, onCancelar, onActualizado }: Props) => {
             </button>
           </div>
         </form>
-
-        <hr />
-
-        <p className="text-muted">
-          ¿Este producto está bien con {producto.stock} {producto.stock === 1 ? 'unidad' : 'unidades'}? No va a
-          aparecer más en stock bajo hasta que baje de esa cantidad.
-        </p>
-        <div className="modal-acciones">
-          <button type="button" className="btn modal-btn-confirmar" onClick={handleEstaBienAsi} disabled={guardando}>
-            Está bien así
-          </button>
-        </div>
       </div>
     </div>
   )
