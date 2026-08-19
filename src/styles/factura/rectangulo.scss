@@ -65,6 +65,11 @@
 
 .header-col {
   flex: 1;
+  // Sin esto, un valor largo (ej: la fecha "19/08/2026") no se achica --
+  // los flex-items por defecto no bajan de su ancho de contenido (min-width:
+  // auto), asi que esa columna quedaba mas ancha que el resto en vez de las
+  // 4 repartirse el espacio en partes iguales.
+  min-width: 0;
   text-align: center;
   padding: 10px;
   border-right: 2px solid black;

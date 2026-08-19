@@ -98,7 +98,7 @@ const EditarProductoModal = ({ codigo, onCancelar, onGuardado, onEliminado, cant
     }
   }
 
-  if (confirmandoEliminar && producto) {
+  if (onEliminado && confirmandoEliminar && producto) {
     return (
       <div className="modal-overlay">
         <div className="modal-box">
@@ -181,14 +181,16 @@ const EditarProductoModal = ({ codigo, onCancelar, onGuardado, onEliminado, cant
               </button>
             </div>
 
-            <button
-              type="button"
-              className="btn btn-outline-danger w-100 mt-2"
-              onClick={() => setConfirmandoEliminar(true)}
-              disabled={guardando}
-            >
-              Eliminar producto
-            </button>
+            {onEliminado && (
+              <button
+                type="button"
+                className="btn btn-outline-danger w-100 mt-2"
+                onClick={() => setConfirmandoEliminar(true)}
+                disabled={guardando}
+              >
+                Eliminar producto
+              </button>
+            )}
           </form>
         )}
 

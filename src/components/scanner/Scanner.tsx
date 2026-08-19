@@ -139,11 +139,6 @@ const Scanner = () => {
     setProductoEditando(null)
   }
 
-  const handleProductoEliminado = (id: number) => {
-    removeProduct(id)
-    setProductoEditando(null)
-  }
-
   const handleVentaConfirmada = (info: VentaConfirmadaInfo) => {
     // Confirmar cierra el ciclo al toque: se guarda una copia de la
     // boleta para poder imprimirla (o no) como paso aparte, y el
@@ -314,7 +309,6 @@ const Scanner = () => {
           onCantidadGuardada={(cantidad) => updateProductQuantity(productoEditando, cantidad)}
           onCancelar={() => setProductoEditando(null)}
           onGuardado={handleProductoActualizado}
-          onEliminado={handleProductoEliminado}
         />
       )}
 
