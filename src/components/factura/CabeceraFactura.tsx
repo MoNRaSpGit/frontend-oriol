@@ -26,6 +26,10 @@ const CabeceraFactura = ({ datosFactura, finalEnDolares, onEditar }: Props) => {
     <div className="factura-header">
       <div className="factura-logo-container">
         <img src={`${import.meta.env.BASE_URL}LogoOriol.jpeg`} alt="Agro Insumos Tacuarembó" className="factura-logo" />
+        <div className="factura-logo-datos">
+          <div>W. Ferreira Aldunate y Olimpia Pintos</div>
+          <div>46329790 - 098796127</div>
+        </div>
       </div>
 
       <div

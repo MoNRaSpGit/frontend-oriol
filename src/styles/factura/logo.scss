@@ -1,20 +1,28 @@
-// El logo real (LogoOriol.jpeg, 591x320 aprox.) ya incluye el nombre de la
-// empresa, la sucursal y el telefono adentro de la imagen -- por eso no
-// hay un bloque de texto aparte al lado (ver CabeceraFactura.tsx). El
-// contenedor respeta esa proporcion (~1.85:1) para no deformarlo. flex: 1
-// para que logo y caja de datos se repartan el header mitad y mitad
-// (ver .header-box en rectangulo.scss, que tambien usa flex: 1).
+// El logo real (LogoOriol.jpeg, recortado a 591x232) solo trae el
+// isotipo ("Agro Insumos" + "Tacuarembó") -- la direccion y el telefono
+// se sacaron de la imagen y se muestran como texto real aparte
+// (.factura-logo-datos) para poder controlar su tamaño de letra sin
+// tener que regenerar la imagen. flex: 1 en el contenedor para que logo
+// y caja de datos se repartan el header mitad y mitad (ver .header-box
+// en rectangulo.scss, que tambien usa flex: 1).
 .factura-logo-container {
   flex: 1;
-  height: 220px;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
 .factura-logo {
   width: 100%;
-  height: 100%;
+  max-width: 320px;
+  height: auto;
   object-fit: contain;
+}
+
+.factura-logo-datos {
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  line-height: 1.3;
 }
