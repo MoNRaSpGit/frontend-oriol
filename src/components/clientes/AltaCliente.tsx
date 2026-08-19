@@ -51,7 +51,7 @@ const AltaCliente = ({ onCreado }: { onCreado: (cliente: Cliente) => void }) => 
       </div>
       {error && <p className="text-danger">{error}</p>}
       <button type="submit" className="btn btn-primary btn-lg w-100" disabled={guardando}>
-        {guardando ? 'Guardando...' : 'Dar de alta'}
+        {guardando ? 'Guardando...' : 'Guardar'}
       </button>
     </form>
   )

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { getClientes } from '../../services/clientes.service'
+import { eliminarCliente, getClientes } from '../../services/clientes.service'
 import { mensajeDeError } from '../../utils/errores'
 import type { Cliente } from '../../types/cliente'
 import type { Venta } from '../../types/venta'
@@ -22,6 +22,9 @@ const Clientes = () => {
   const [boletaAReimprimir, setBoletaAReimprimir] = useState<Venta | null>(null)
   const [modalAltaAbierto, setModalAltaAbierto] = useState(false)
   const [busqueda, setBusqueda] = useState('')
+  const [clienteAEliminar, setClienteAEliminar] = useState<Cliente | null>(null)
+  const [eliminando, setEliminando] = useState(false)
+  const [errorEliminar, setErrorEliminar] = useState('')
 
   useEffect(() => {
     getClientes()
@@ -44,6 +47,24 @@ const Clientes = () => {
   const handleClienteActualizado = (actualizado: Cliente) => {
     setClientes((prev) => prev.map((c) => (c.id === actualizado.id ? actualizado : c)))
     setClienteSeleccionado(actualizado)
+  }
+
+  const handleConfirmarEliminar = async () => {
+    if (!clienteAEliminar) return
+    setEliminando(true)
+    setErrorEliminar('')
+    try {
+      await eliminarCliente(clienteAEliminar.id)
+      setClientes((prev) => prev.filter((c) => c.id !== clienteAEliminar.id))
+      if (clienteSeleccionado?.id === clienteAEliminar.id) {
+        setClienteSeleccionado(null)
+      }
+      setClienteAEliminar(null)
+    } catch (err) {
+      setErrorEliminar(mensajeDeError(err, 'No se pudo eliminar el cliente.'))
+    } finally {
+      setEliminando(false)
+    }
   }
 
   if (boletaAReimprimir && clienteSeleccionado) {
@@ -86,6 +107,10 @@ const Clientes = () => {
               cargando={cargando}
               clienteSeleccionadoId={clienteSeleccionado?.id ?? null}
               onSeleccionar={setClienteSeleccionado}
+              onEliminar={(c) => {
+                setErrorEliminar('')
+                setClienteAEliminar(c)
+              }}
             />
           )}
         </div>
@@ -116,6 +141,36 @@ const Clientes = () => {
             >
               Cancelar
             </button>
+          </div>
+        </div>
+      )}
+
+      {clienteAEliminar && (
+        <div className="modal-overlay" onClick={() => !eliminando && setClienteAEliminar(null)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h4>Eliminar cliente</h4>
+            <p>
+              ¿Seguro que querés eliminar a <strong>{clienteAEliminar.nombre}</strong>? Esta acción no se puede deshacer.
+            </p>
+            {errorEliminar && <p className="text-danger">{errorEliminar}</p>}
+            <div className="modal-acciones">
+              <button
+                type="button"
+                className="btn modal-btn-cancelar"
+                onClick={() => setClienteAEliminar(null)}
+                disabled={eliminando}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn modal-btn-eliminar"
+                onClick={handleConfirmarEliminar}
+                disabled={eliminando}
+              >
+                {eliminando ? 'Eliminando...' : 'Eliminar'}
+              </button>
+            </div>
           </div>
         </div>
       )}

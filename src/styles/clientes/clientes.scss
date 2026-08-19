@@ -51,12 +51,42 @@
     .cliente-item-deuda--activa {
       color: v.$color-white;
     }
+
+    .cliente-item-eliminar {
+      color: v.$color-white;
+
+      &:hover {
+        color: v.$color-white;
+        opacity: 0.7;
+      }
+    }
   }
+}
+
+.cliente-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .cliente-item-nombre {
   font-weight: 700;
   font-size: 1.1rem;
+}
+
+.cliente-item-eliminar {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  padding: 0 4px;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: v.$color-text-muted;
+
+  &:hover {
+    color: v.$color-danger;
+  }
 }
 
 .cliente-item-deuda {

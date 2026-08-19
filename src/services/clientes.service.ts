@@ -101,6 +101,11 @@ export async function crearCliente(nombre: string, telefono?: string, cedula?: s
   return aCliente(data.item)
 }
 
+export async function eliminarCliente(clienteId: number): Promise<void> {
+  const res = await apiFetch(`/clientes/${clienteId}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo eliminar el cliente'))
+}
+
 export async function getHistorialCliente(clienteId: number): Promise<Venta[]> {
   const res = await apiFetch(`/clientes/${clienteId}/historial`)
   if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo obtener el historial'))

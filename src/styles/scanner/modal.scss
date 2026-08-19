@@ -154,4 +154,14 @@
       color: v.$color-white;
     }
   }
+
+  .modal-btn-eliminar {
+    border-color: v.$color-danger;
+    color: v.$color-danger;
+
+    &:hover:not(:disabled) {
+      background-color: v.$color-danger;
+      color: v.$color-white;
+    }
+  }
 }

@@ -5,9 +5,10 @@ interface Props {
   cargando: boolean
   clienteSeleccionadoId: number | null
   onSeleccionar: (cliente: Cliente) => void
+  onEliminar: (cliente: Cliente) => void
 }
 
-const ListaClientes = ({ clientes, cargando, clienteSeleccionadoId, onSeleccionar }: Props) => {
+const ListaClientes = ({ clientes, cargando, clienteSeleccionadoId, onSeleccionar, onEliminar }: Props) => {
   if (cargando) return <p className="text-muted">Cargando...</p>
   if (clientes.length === 0) return <p className="text-muted">Todavía no hay clientes de alta.</p>
 
@@ -22,7 +23,20 @@ const ListaClientes = ({ clientes, cargando, clienteSeleccionadoId, onSelecciona
             className={`cliente-item ${c.id === clienteSeleccionadoId ? 'active' : ''}`}
             onClick={() => onSeleccionar(c)}
           >
-            <div className="cliente-item-nombre">{c.nombre}</div>
+            <div className="cliente-item-header">
+              <div className="cliente-item-nombre">{c.nombre}</div>
+              <button
+                type="button"
+                className="cliente-item-eliminar"
+                title="Eliminar cliente"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEliminar(c)
+                }}
+              >
+                ×
+              </button>
+            </div>
             <div className={`cliente-item-deuda ${tieneDeuda ? 'cliente-item-deuda--activa' : ''}`}>
               Deuda: $ {Number(c.deuda).toFixed(2)}
             </div>
