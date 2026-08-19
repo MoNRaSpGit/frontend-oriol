@@ -14,7 +14,7 @@ const PieFactura = ({ totalPesos, totalDolares, finalEnDolares, setFinalEnDolare
     <div className="factura-footer">
       <div className="pie-rect">
         <div className="pie-col2">
-          <div>Desarrollado por Agro Insumos</div>
+          <div>Desarrollado por LogicLab</div>
           <div>Uso interno</div>
           <div>Cel: 092945696</div>
         </div>
