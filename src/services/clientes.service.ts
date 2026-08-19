@@ -103,6 +103,9 @@ export async function crearCliente(nombre: string, telefono?: string, cedula?: s
 
 export async function eliminarCliente(clienteId: number): Promise<void> {
   const res = await apiFetch(`/clientes/${clienteId}`, { method: 'DELETE' })
+  if (res.status === 409) {
+    throw new Error('Primero hay que saldar la cuenta: para eliminar al cliente hace falta pagar toda su deuda (ir a "Pagar" y pagar todo).')
+  }
   if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo eliminar el cliente'))
 }
 

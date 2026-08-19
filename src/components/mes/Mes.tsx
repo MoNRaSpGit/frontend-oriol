@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getResumenMes, getHistorialMeses, editarCierreDia } from '../../services/panel.service'
 import { mensajeDeError } from '../../utils/errores'
+import { useTasaDolar } from '../../hooks/useTasaDolar'
 import type { DiaMes, ResumenMes, TotalMes } from '../../types/panel'
 import GraficoVentasMensuales from './GraficoVentasMensuales'
 import EditarCierreDiaModal from './EditarCierreDiaModal'
@@ -12,12 +13,11 @@ const NOMBRES_MES = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
 ]
 
-const formatearMoneda = (pesos: number, dolares: number) => {
-  const partes: string[] = []
-  if (pesos > 0) partes.push(`$ ${pesos.toFixed(2)}`)
-  if (dolares > 0) partes.push(`U$ ${dolares.toFixed(2)}`)
-  return partes.length > 0 ? partes.join(' + ') : '$ 0.00'
-}
+// Todo se muestra en un unico total en pesos (los dolares se convierten
+// con la tasa vigente) -- antes se mostraba "$ X + U$ Y" por separado, lo
+// que quedaba confuso para la lectura rapida del resumen del mes.
+const formatearMoneda = (pesos: number, dolares: number, tasaDolar: number) =>
+  `$ ${(pesos + dolares * tasaDolar).toFixed(2)}`
 
 const capitalizar = (texto: string) => texto.charAt(0).toUpperCase() + texto.slice(1)
 
@@ -32,6 +32,7 @@ const Mes = () => {
   const [semanasAbiertas, setSemanasAbiertas] = useState<Set<number>>(new Set([1]))
   const [historial, setHistorial] = useState<TotalMes[] | null>(null)
   const [diaEditando, setDiaEditando] = useState<DiaMes | null>(null)
+  const tasaDolar = useTasaDolar()
 
   useEffect(() => {
     setCargando(true)
@@ -133,7 +134,7 @@ const Mes = () => {
         <>
           <div className="mes-total-box">
             <span className="mes-total-label">Total del mes</span>
-            <span className="mes-total-valor">{formatearMoneda(resumen.totalPesos, resumen.totalDolares)}</span>
+            <span className="mes-total-valor">{formatearMoneda(resumen.totalPesos, resumen.totalDolares, tasaDolar)}</span>
           </div>
 
           {resumen.semanas.map((semana) => {
@@ -148,7 +149,7 @@ const Mes = () => {
                 >
                   <span className="mes-semana-flecha">{abierta ? '▾' : '▸'}</span>
                   <h6 className="mb-0">Semana {semana.numero}</h6>
-                  <span className="mes-semana-total">{formatearMoneda(semana.totalPesos, semana.totalDolares)}</span>
+                  <span className="mes-semana-total">{formatearMoneda(semana.totalPesos, semana.totalDolares, tasaDolar)}</span>
                 </button>
 
                 {abierta && (
@@ -166,7 +167,7 @@ const Mes = () => {
                         <tr key={dia.fecha} className={dia.totalPesos === 0 && dia.totalDolares === 0 ? 'mes-fila-sin-ventas' : ''}>
                           <td>{capitalizar(dia.diaSemana)}</td>
                           <td>{dia.fecha.split('-').reverse().join('/')}</td>
-                          <td className="text-end">{formatearMoneda(dia.totalPesos, dia.totalDolares)}</td>
+                          <td className="text-end">{formatearMoneda(dia.totalPesos, dia.totalDolares, tasaDolar)}</td>
                           <td className="mes-fila-editar">
                             <button type="button" className="mes-btn-editar-dia" onClick={() => setDiaEditando(dia)}>
                               Editar

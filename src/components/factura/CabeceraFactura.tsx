@@ -60,6 +60,7 @@ const CabeceraFactura = ({ datosFactura, finalEnDolares, onEditar }: Props) => {
           <div>{datosFactura.direccionCliente}</div>
           <div>{datosFactura.ubicacionCliente}</div>
         </div>
+        <div className="header-row header-uso-interno">Uso interno</div>
       </div>
     </div>
   )

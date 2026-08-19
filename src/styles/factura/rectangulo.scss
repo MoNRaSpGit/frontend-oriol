@@ -38,6 +38,15 @@
   color: black;
 }
 
+.header-uso-interno {
+  flex: 0 0 28px;
+  background-color: v.$color-bg-gray-dark;
+  color: black;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .header-efacture {
   background-color: white;
   color: v.$color-text-muted;
