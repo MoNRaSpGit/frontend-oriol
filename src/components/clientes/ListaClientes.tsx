@@ -28,13 +28,12 @@ const ListaClientes = ({ clientes, cargando, clienteSeleccionadoId, onSelecciona
               <button
                 type="button"
                 className="cliente-item-eliminar"
-                title="Eliminar cliente"
                 onClick={(e) => {
                   e.stopPropagation()
                   onEliminar(c)
                 }}
               >
-                ×
+                Eliminar
               </button>
             </div>
             <div className={`cliente-item-deuda ${tieneDeuda ? 'cliente-item-deuda--activa' : ''}`}>

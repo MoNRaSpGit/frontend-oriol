@@ -51,15 +51,6 @@
     .cliente-item-deuda--activa {
       color: v.$color-white;
     }
-
-    .cliente-item-eliminar {
-      color: v.$color-white;
-
-      &:hover {
-        color: v.$color-white;
-        opacity: 0.7;
-      }
-    }
   }
 }
 
@@ -78,14 +69,15 @@
 .cliente-item-eliminar {
   flex-shrink: 0;
   border: none;
-  background: none;
-  padding: 0 4px;
-  font-size: 1.4rem;
-  line-height: 1;
-  color: v.$color-text-muted;
+  border-radius: v.$radius-base;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background-color: v.$color-danger;
+  color: v.$color-white;
 
   &:hover {
-    color: v.$color-danger;
+    opacity: 0.85;
   }
 }
 
