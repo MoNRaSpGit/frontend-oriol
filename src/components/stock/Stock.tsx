@@ -90,8 +90,6 @@ const Stock = () => {
               <div
                 key={p.id}
                 className={`stock-item ${nivelDeStock(p.stock, p.stock_minimo) ? `stock-item--${nivelDeStock(p.stock, p.stock_minimo)}` : ''}`}
-                onClick={() => setProductoSeleccionado(p)}
-                role="button"
               >
                 <div className="stock-item-info">
                   <div className="stock-item-nombre">{p.name}</div>
@@ -104,6 +102,14 @@ const Stock = () => {
                   <span className="stock-item-badge">{p.stock}</span>
                   <span className="stock-item-label">{p.stock === 1 ? 'unidad' : 'unidades'}</span>
                 </div>
+                <button
+                  type="button"
+                  className="stock-item-editar"
+                  onClick={() => setProductoSeleccionado(p)}
+                  aria-label={`Editar ${p.name}`}
+                >
+                  Editar
+                </button>
               </div>
             ))
           )}
@@ -124,8 +130,6 @@ const Stock = () => {
             <div
               key={p.id}
               className={`stock-item stock-item--${nivelDeStock(p.stock, p.stock_minimo)}`}
-              onClick={() => setProductoSeleccionado(p)}
-              role="button"
             >
               <div className="stock-item-info">
                 <div className="stock-item-nombre">{p.name}</div>
@@ -138,6 +142,14 @@ const Stock = () => {
                 <span className="stock-item-badge">{p.stock}</span>
                 <span className="stock-item-label">{p.stock === 1 ? 'unidad' : 'unidades'}</span>
               </div>
+              <button
+                type="button"
+                className="stock-item-editar"
+                onClick={() => setProductoSeleccionado(p)}
+                aria-label={`Editar ${p.name}`}
+              >
+                Editar
+              </button>
             </div>
           ))}
         </div>

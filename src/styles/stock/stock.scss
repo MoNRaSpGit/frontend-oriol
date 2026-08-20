@@ -16,7 +16,22 @@
   margin-bottom: 12px;
   background-color: v.$color-white;
   box-shadow: v.$shadow-card;
+}
+
+.stock-item-editar {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: 1px solid v.$color-primary;
+  border-radius: v.$radius-base;
+  background-color: transparent;
+  color: v.$color-primary;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
+
+  &:hover {
+    background-color: rgba(29, 95, 174, 0.1);
+  }
 }
 
 .stock-item--amarillo {

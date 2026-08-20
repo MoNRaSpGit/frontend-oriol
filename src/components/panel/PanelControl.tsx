@@ -112,13 +112,12 @@ const PanelControl = () => {
             <div className="panel-metric-valor">$ {panel.ventasDelDia.toFixed(2)}</div>
           </div>
 
-          <div
-            className="panel-metric panel-metric--editable"
-            onClick={() => setEditandoPorcentaje(true)}
-            title="Click para editar el porcentaje"
-          >
+          <div className="panel-metric">
             <div className="panel-metric-titulo">Ganancia ({porcentajeGanancia}%)</div>
             <div className="panel-metric-valor">$ {((panel.ventasDelDia * porcentajeGanancia) / 100).toFixed(2)}</div>
+            <button type="button" className="panel-metric-editar-btn" onClick={() => setEditandoPorcentaje(true)}>
+              Editar
+            </button>
           </div>
         </div>
 

@@ -233,19 +233,13 @@ const Scanner = () => {
               <span className="scanner-item-cantidad">Cant.</span>
               <span className="scanner-item-total">Total</span>
             </span>
-            <span className="scanner-item-quitar scanner-header-spacer" />
           </div>
           {productosSeleccionados.map((p) => (
             <div className="scanner-item" key={p.codigo}>
               <div className="scanner-item-img scanner-item-img--vacia">
                 <span>img</span>
               </div>
-              <div
-                className="scanner-item-info scanner-item-info--clickeable"
-                onClick={() => updateProductQuantity(p.codigo, p.cantidad + 1)}
-                role="button"
-                title="Sumar 1 unidad"
-              >
+              <div className="scanner-item-info">
                 <div className="scanner-item-nombre">{p.name}</div>
                 <div className="scanner-item-precio">
                   {p.currency === 'USD' ? 'U$' : '$'}
@@ -263,21 +257,31 @@ const Scanner = () => {
                 </button>
               </div>
               <div className="scanner-item-resultado">
-                <div className="scanner-item-cantidad">x{p.cantidad}</div>
+                <div className="scanner-item-cantidad-controles">
+                  <button
+                    type="button"
+                    className="scanner-item-cant-btn"
+                    onClick={() => (p.cantidad > 1 ? updateProductQuantity(p.codigo, p.cantidad - 1) : removeProduct(p.codigo))}
+                    title={p.cantidad > 1 ? 'Restar 1 unidad' : 'Quitar producto'}
+                    aria-label={`Restar 1 unidad de ${p.name}`}
+                  >
+                    −
+                  </button>
+                  <span className="scanner-item-cantidad">{p.cantidad}</span>
+                  <button
+                    type="button"
+                    className="scanner-item-cant-btn"
+                    onClick={() => updateProductQuantity(p.codigo, p.cantidad + 1)}
+                    aria-label={`Sumar 1 unidad a ${p.name}`}
+                  >
+                    +
+                  </button>
+                </div>
                 <div className="scanner-item-total">
                   {p.currency === 'USD' ? 'U$' : '$'}
                   {p.total.toFixed(2)}
                 </div>
               </div>
-              <button
-                type="button"
-                className="scanner-item-quitar"
-                onClick={() => (p.cantidad > 1 ? updateProductQuantity(p.codigo, p.cantidad - 1) : removeProduct(p.codigo))}
-                title={p.cantidad > 1 ? 'Restar 1 unidad' : 'Quitar producto'}
-                aria-label={`Restar 1 unidad de ${p.name}`}
-              >
-                ×
-              </button>
             </div>
           ))}
 

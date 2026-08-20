@@ -134,11 +134,20 @@
   }
 }
 
-.panel-metric--editable {
+.panel-metric-editar-btn {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 4px 10px;
+  border: 1px solid #5f95cf;
+  border-radius: 8px;
+  background: none;
+  color: #1d5fae;
+  font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
 
   &:hover {
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+    background-color: rgba(29, 95, 174, 0.08);
   }
 }
 

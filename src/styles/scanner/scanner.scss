@@ -144,18 +144,6 @@
   text-align: left;
 }
 
-.scanner-item-info--clickeable {
-  cursor: pointer;
-  border-radius: v.$radius-base;
-  padding: 6px 10px;
-  margin: -6px -10px;
-  transition: background-color 0.15s ease;
-
-  &:hover {
-    background-color: rgba(29, 95, 174, 0.08);
-  }
-}
-
 .scanner-item-editar-wrap {
   flex: 1 1 0;
   display: flex;
@@ -182,11 +170,35 @@
   color: v.$color-text-secondary;
 }
 
+.scanner-item-cantidad-controles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .scanner-item-cantidad {
   font-weight: 700;
   font-size: 1.4rem;
-  min-width: 56px;
+  min-width: 32px;
   text-align: center;
+}
+
+.scanner-item-cant-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 1px solid v.$color-border-medium;
+  border-radius: 50%;
+  background-color: v.$color-white;
+  color: v.$color-text-dark;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    background-color: v.$color-bg-light;
+  }
 }
 
 .scanner-item-total {
@@ -213,22 +225,6 @@
   }
 }
 
-.scanner-item-quitar {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background-color: transparent;
-  color: v.$color-danger;
-  font-size: 1.7rem;
-  line-height: 1;
-  cursor: pointer;
-
-  &:hover {
-    background-color: rgba(192, 57, 43, 0.12);
-  }
-}
 
 .scanner-total {
   margin-top: 18px;
