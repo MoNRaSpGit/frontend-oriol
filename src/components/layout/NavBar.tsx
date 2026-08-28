@@ -31,12 +31,12 @@ interface Tab {
 const TABS_VISIBLES: Tab[] = [
   { vista: 'scanner', etiqueta: 'Producto', icono: <FaBarcode /> },
   { vista: 'factura', etiqueta: 'Factura', icono: <FaFileInvoice /> },
-  { vista: 'stock', etiqueta: 'Stock', icono: <FaExclamationTriangle /> },
+  { vista: 'clientes', etiqueta: 'Cuenta corriente', icono: <FaUsers /> },
 ]
 
 const TABS_MENU: Tab[] = [
   { vista: 'productos', etiqueta: 'Catálogo', icono: <FaBoxOpen /> },
-  { vista: 'clientes', etiqueta: 'Cuenta corriente', icono: <FaUsers /> },
+  { vista: 'stock', etiqueta: 'Stock', icono: <FaExclamationTriangle /> },
   { vista: 'panel', etiqueta: 'Panel', icono: <FaChartBar /> },
   { vista: 'mes', etiqueta: 'Mes', icono: <FaCalendarAlt /> },
 ]
