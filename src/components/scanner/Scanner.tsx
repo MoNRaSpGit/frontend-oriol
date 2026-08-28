@@ -190,7 +190,7 @@ const Scanner = () => {
   // Suma los productos recien escaneados a la venta ya guardada (boton
   // Volver de la boleta final) en vez de crear una boleta nueva.
   const handleAgregarAVentaAbierta = async () => {
-    if (!ventaAbierta || productosSeleccionados.length === 0) return
+    if (!ventaAbierta || productosSeleccionados.length === 0 || agregandoProductos) return
     setError('')
     setAgregandoProductos(true)
     const itemsNuevos: ItemVenta[] = productosSeleccionados.map((p) => ({
