@@ -50,7 +50,7 @@ const Productos = () => {
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0">Productos</h2>
+        <h2 className="mb-0">Catálogo</h2>
         <button className="btn btn-primary btn-lg" onClick={() => setModalAbierto(true)}>
           Agregar producto
         </button>
