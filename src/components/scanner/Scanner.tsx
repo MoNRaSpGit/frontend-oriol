@@ -2,13 +2,14 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useCarrito, type ProductoBoleta } from '../../context/CarritoContext'
 import { useToast } from '../../context/ToastContext'
 import { getProductoPorCodigoBarra, buscarProductosPorNombre } from '../../services/productos.service'
+import { actualizarVenta } from '../../services/ventas.service'
 import ProductoFormModal from '../productos/ProductoFormModal'
 import EditarProductoModal from '../productos/EditarProductoModal'
 import CheckoutModal, { type VentaConfirmadaInfo } from './CheckoutModal'
-import BoletaConfirmada from './BoletaConfirmada'
+import BoletaConfirmada, { type VentaAbiertaInfo } from './BoletaConfirmada'
 import { mensajeDeError } from '../../utils/errores'
 import type { Producto } from '../../types/producto'
-import type { MetodoPago } from '../../types/venta'
+import type { ItemVenta, MetodoPago } from '../../types/venta'
 import '../../styles/scanner/scanner.scss'
 
 const esSoloDigitos = (texto: string) => /^\d+$/.test(texto.trim())
@@ -22,6 +23,22 @@ interface BoletaParaImprimir {
   fecha: string
   nombreCliente?: string
   clienteId?: number
+}
+
+// Suma productos nuevos a los que ya tenia la boleta, juntando cantidades
+// si es el mismo producto (mismo codigo) -- para armar la lista final que
+// se muestra despues de agregar mas cosas a una venta ya guardada.
+function mergearProductos(previos: ProductoBoleta[], nuevos: ProductoBoleta[]): ProductoBoleta[] {
+  let resultado = previos
+  for (const nuevo of nuevos) {
+    const existente = resultado.find((p) => p.codigo === nuevo.codigo)
+    resultado = existente
+      ? resultado.map((p) =>
+          p.codigo === nuevo.codigo ? { ...p, cantidad: p.cantidad + nuevo.cantidad, total: p.total + nuevo.total } : p
+        )
+      : [...resultado, nuevo]
+  }
+  return resultado
 }
 
 const Scanner = () => {
@@ -42,6 +59,12 @@ const Scanner = () => {
   const [resultadosNombre, setResultadosNombre] = useState<Producto[]>([])
   const [buscandoNombre, setBuscandoNombre] = useState(false)
   const [boletaParaImprimir, setBoletaParaImprimir] = useState<BoletaParaImprimir | null>(null)
+  // Cuando no es null, el scanner esta en modo "agregar mas productos a una
+  // boleta ya guardada" (boton Volver de la boleta final) -- el carrito
+  // vuelve a arrancar vacio y "Confirmar compra" pasa a sumar contra esta
+  // venta en vez de crear una nueva.
+  const [ventaAbierta, setVentaAbierta] = useState<VentaAbiertaInfo | null>(null)
+  const [agregandoProductos, setAgregandoProductos] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const modoNombre = query.trim().length > 0 && !esSoloDigitos(query)
@@ -99,7 +122,11 @@ const Scanner = () => {
       // Input vacío (recién se agregó un producto): Enter pasa directo a
       // confirmar la compra, en vez de no hacer nada.
       if (productosSeleccionados.length > 0) {
-        setMostrarCheckout(true)
+        if (ventaAbierta) {
+          handleAgregarAVentaAbierta()
+        } else {
+          setMostrarCheckout(true)
+        }
       }
       return
     }
@@ -160,6 +187,62 @@ const Scanner = () => {
     setQuery('')
   }
 
+  // Suma los productos recien escaneados a la venta ya guardada (boton
+  // Volver de la boleta final) en vez de crear una boleta nueva.
+  const handleAgregarAVentaAbierta = async () => {
+    if (!ventaAbierta || productosSeleccionados.length === 0) return
+    setError('')
+    setAgregandoProductos(true)
+    const itemsNuevos: ItemVenta[] = productosSeleccionados.map((p) => ({
+      id: p.codigo,
+      name: p.name,
+      cantidad: p.cantidad,
+      precio: p.precio,
+      currency: p.currency,
+    }))
+    try {
+      const venta = await actualizarVenta(ventaAbierta.ventaId, { items_nuevos: itemsNuevos })
+      setBoletaParaImprimir({
+        ventaId: ventaAbierta.ventaId,
+        productos: mergearProductos(ventaAbierta.productosPrevios, productosSeleccionados),
+        totalPesos: venta.total_pesos,
+        totalDolares: venta.total_dolares,
+        metodoPago: ventaAbierta.metodoPago,
+        fecha: ventaAbierta.fecha,
+        nombreCliente: ventaAbierta.nombreCliente,
+        clienteId: ventaAbierta.clienteId,
+      })
+      setVentaAbierta(null)
+      vaciarCarrito()
+      mostrarToast('Productos agregados a la boleta.')
+      setQuery('')
+    } catch (err) {
+      setError(mensajeDeError(err, 'No se pudo agregar los productos a la boleta.'))
+    } finally {
+      setAgregandoProductos(false)
+    }
+  }
+
+  // Se arrepiente de agregar mas productos: vuelve a mostrar la boleta tal
+  // cual estaba, sin mandar nada al backend, y descarta lo que haya
+  // escaneado de mas en este ida y vuelta.
+  const handleCancelarVentaAbierta = () => {
+    if (!ventaAbierta) return
+    setBoletaParaImprimir({
+      ventaId: ventaAbierta.ventaId,
+      productos: ventaAbierta.productosPrevios,
+      totalPesos: ventaAbierta.totalPesosPrevio,
+      totalDolares: ventaAbierta.totalDolaresPrevio,
+      metodoPago: ventaAbierta.metodoPago,
+      fecha: ventaAbierta.fecha,
+      nombreCliente: ventaAbierta.nombreCliente,
+      clienteId: ventaAbierta.clienteId,
+    })
+    setVentaAbierta(null)
+    vaciarCarrito()
+    setQuery('')
+  }
+
   let totalPesos = 0
   let totalDolares = 0
   productosSeleccionados.forEach((p) => {
@@ -179,13 +262,26 @@ const Scanner = () => {
         nombreCliente={boletaParaImprimir.nombreCliente}
         clienteId={boletaParaImprimir.clienteId}
         onCerrar={() => setBoletaParaImprimir(null)}
+        onAgregarProductos={(info) => {
+          setVentaAbierta(info)
+          setBoletaParaImprimir(null)
+        }}
       />
     )
   }
 
   return (
     <div className="container mt-4 scanner-container">
-      <h2 className="mb-4">Scanner</h2>
+      <h2 className="mb-4">Producto</h2>
+
+      {ventaAbierta && (
+        <div className="alert alert-info d-flex justify-content-between align-items-center">
+          <span>Agregando productos a la boleta #{ventaAbierta.ventaId}.</span>
+          <button type="button" className="btn btn-link p-0" onClick={handleCancelarVentaAbierta}>
+            Cancelar y volver a la boleta
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="scanner-form">
         <div className="scanner-busqueda">
@@ -290,8 +386,12 @@ const Scanner = () => {
             {totalDolares > 0 && <div>Total U$: {totalDolares.toFixed(2)}</div>}
           </div>
 
-          <button className="btn btn-success btn-lg mt-3 w-100" onClick={() => setMostrarCheckout(true)}>
-            Confirmar compra
+          <button
+            className="btn btn-success btn-lg mt-3 w-100"
+            disabled={agregandoProductos}
+            onClick={() => (ventaAbierta ? handleAgregarAVentaAbierta() : setMostrarCheckout(true))}
+          >
+            {ventaAbierta ? (agregandoProductos ? 'Agregando...' : 'Agregar a la boleta') : 'Confirmar compra'}
           </button>
         </div>
       )}

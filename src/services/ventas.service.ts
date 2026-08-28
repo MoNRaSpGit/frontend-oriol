@@ -49,14 +49,30 @@ export interface VentaActualizar {
   metodo_pago?: MetodoPago
   fecha?: string
   cliente_id?: number
+  // Productos que se suman a la boleta ya guardada (no reemplazan los que
+  // ya tenia) -- usado por el botón "Volver" de la boleta final.
+  items_nuevos?: ItemVenta[]
 }
 
-export async function actualizarVenta(id: number, cambios: VentaActualizar): Promise<void> {
+export interface VentaActualizada {
+  id: number
+  total_pesos: number
+  total_dolares: number
+}
+
+export async function actualizarVenta(id: number, cambios: VentaActualizar): Promise<VentaActualizada> {
   const res = await apiFetch(`/ventas/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify({ metodoPago: cambios.metodo_pago, fecha: cambios.fecha, clienteId: cambios.cliente_id }),
+    body: JSON.stringify({
+      metodoPago: cambios.metodo_pago,
+      fecha: cambios.fecha,
+      clienteId: cambios.cliente_id,
+      itemsNuevos: cambios.items_nuevos,
+    }),
   })
   if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo actualizar la venta'))
+  const data = (await res.json()) as { item: VentaApi }
+  return { id: data.item.id, total_pesos: data.item.totalPesos, total_dolares: data.item.totalDolares }
 }
 
 // Pago (total o parcial) de una boleta de credito puntual, contra uno de

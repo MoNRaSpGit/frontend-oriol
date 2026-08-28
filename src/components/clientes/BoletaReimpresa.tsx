@@ -108,14 +108,13 @@ const BoletaReimpresa = ({ venta, cliente, onVolver }: Props) => {
           metodoActual={metodoPago}
           fechaActual={fecha}
           clienteIdActual={clienteId}
+          nombreClienteActual={nombreCliente}
           onCancelar={() => setMostrarEditar(false)}
           onGuardado={(resultado) => {
             setMetodoPago(resultado.metodoPago)
             setFecha(resultado.fecha)
-            if (resultado.clienteNombre) {
-              setClienteId(resultado.clienteId)
-              setNombreCliente(resultado.clienteNombre)
-            }
+            setClienteId(resultado.metodoPago === 'credito' ? resultado.clienteId : clienteId)
+            setNombreCliente(resultado.clienteNombre ?? nombreCliente)
             setMostrarEditar(false)
           }}
         />

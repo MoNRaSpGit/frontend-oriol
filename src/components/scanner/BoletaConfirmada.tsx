@@ -13,6 +13,17 @@ const PAGO_POR_METODO: Record<MetodoPago, string> = {
 const formatearFecha = (fechaIso: string) =>
   new Date(fechaIso).toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
+export interface VentaAbiertaInfo {
+  ventaId: number
+  metodoPago: MetodoPago
+  fecha: string
+  nombreCliente?: string
+  clienteId?: number
+  productosPrevios: ProductoBoleta[]
+  totalPesosPrevio: number
+  totalDolaresPrevio: number
+}
+
 interface Props {
   ventaId: number
   productos: ProductoBoleta[]
@@ -23,6 +34,9 @@ interface Props {
   nombreCliente?: string
   clienteId?: number
   onCerrar: () => void
+  // "Volver": manda al scanner a seguir agregando productos a ESTA MISMA
+  // boleta -- la boleta no se cierra hasta Cerrar o Imprimir.
+  onAgregarProductos: (info: VentaAbiertaInfo) => void
 }
 
 const BoletaConfirmada = ({
@@ -35,6 +49,7 @@ const BoletaConfirmada = ({
   nombreCliente: nombreClienteProp,
   clienteId: clienteIdProp,
   onCerrar,
+  onAgregarProductos,
 }: Props) => {
   const [metodoPago, setMetodoPago] = useState(metodoPagoProp)
   const [fecha, setFecha] = useState(fechaProp)
@@ -65,6 +80,18 @@ const BoletaConfirmada = ({
         textoBotonVolver="Cerrar"
         onVolver={onCerrar}
         onEditar={() => setMostrarEditar(true)}
+        onAgregarProductos={() =>
+          onAgregarProductos({
+            ventaId,
+            metodoPago,
+            fecha,
+            nombreCliente,
+            clienteId: clienteId ?? undefined,
+            productosPrevios: productos,
+            totalPesosPrevio: totalPesos,
+            totalDolaresPrevio: totalDolares,
+          })
+        }
       />
 
       {mostrarEditar && (
@@ -73,14 +100,13 @@ const BoletaConfirmada = ({
           metodoActual={metodoPago}
           fechaActual={fecha}
           clienteIdActual={clienteId}
+          nombreClienteActual={datosFactura.nombreCliente}
           onCancelar={() => setMostrarEditar(false)}
           onGuardado={(resultado) => {
             setMetodoPago(resultado.metodoPago)
             setFecha(resultado.fecha)
-            if (resultado.clienteNombre) {
-              setClienteId(resultado.clienteId)
-              setNombreCliente(resultado.clienteNombre)
-            }
+            setClienteId(resultado.metodoPago === 'credito' ? resultado.clienteId : clienteId)
+            setNombreCliente(resultado.clienteNombre ?? undefined)
             setMostrarEditar(false)
           }}
         />

@@ -38,16 +38,29 @@ interface Props {
   metodoActual: MetodoPago
   fechaActual: string
   clienteIdActual: number | null
+  // Nombre que se ve hoy en la factura (o "Cliente final" si no tiene). Solo
+  // se usa como valor inicial del campo libre -- no se guarda en la base,
+  // vale solo para esta boleta en pantalla.
+  nombreClienteActual: string
   onCancelar: () => void
   onGuardado: (resultado: VentaEditada) => void
 }
 
-const EditarVentaModal = ({ ventaId, metodoActual, fechaActual, clienteIdActual, onCancelar, onGuardado }: Props) => {
+const EditarVentaModal = ({
+  ventaId,
+  metodoActual,
+  fechaActual,
+  clienteIdActual,
+  nombreClienteActual,
+  onCancelar,
+  onGuardado,
+}: Props) => {
   const fechaInicial = fechaIsoAInputLocal(fechaActual)
   const [metodo, setMetodo] = useState<MetodoPago>(metodoActual)
   const [fechaInput, setFechaInput] = useState(fechaInicial)
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [clienteId, setClienteId] = useState<number | ''>(clienteIdActual ?? '')
+  const [nombreLibre, setNombreLibre] = useState(nombreClienteActual === 'Cliente final' ? '' : nombreClienteActual)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
 
@@ -71,6 +84,10 @@ const EditarVentaModal = ({ ventaId, metodoActual, fechaActual, clienteIdActual,
     setError('')
     setGuardando(true)
     const fechaFinal = fechaInput !== fechaInicial ? inputLocalAFechaIso(fechaInput) : fechaActual
+    // El nombre "libre" (efectivo/tarjeta) es solo para esta boleta en
+    // pantalla -- no se manda al backend, así que no va en actualizarVenta.
+    const clienteNombreFinal =
+      metodo === 'credito' ? clientes.find((c) => c.id === Number(clienteId))?.nombre ?? null : nombreLibre.trim() || null
     try {
       await actualizarVenta(ventaId, {
         metodo_pago: metodo,
@@ -81,7 +98,7 @@ const EditarVentaModal = ({ ventaId, metodoActual, fechaActual, clienteIdActual,
         metodoPago: metodo,
         fecha: fechaFinal,
         clienteId: metodo === 'credito' ? Number(clienteId) : null,
-        clienteNombre: metodo === 'credito' ? clientes.find((c) => c.id === Number(clienteId))?.nombre ?? null : null,
+        clienteNombre: clienteNombreFinal,
       })
     } catch (err) {
       setError(mensajeDeError(err, 'No se pudo actualizar la venta. Probá de nuevo.'))
@@ -108,7 +125,7 @@ const EditarVentaModal = ({ ventaId, metodoActual, fechaActual, clienteIdActual,
             </select>
           </div>
 
-          {metodo === 'credito' && (
+          {metodo === 'credito' ? (
             <div className="mb-3">
               <label className="form-label">Cliente</label>
               <select
@@ -123,6 +140,18 @@ const EditarVentaModal = ({ ventaId, metodoActual, fechaActual, clienteIdActual,
                   </option>
                 ))}
               </select>
+            </div>
+          ) : (
+            <div className="mb-3">
+              <label className="form-label">Nombre del cliente</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Cliente final"
+                value={nombreLibre}
+                onChange={(e) => setNombreLibre(e.target.value)}
+              />
+              <small className="text-muted">Si lo dejás vacío, la factura dice "Cliente final".</small>
             </div>
           )}
 

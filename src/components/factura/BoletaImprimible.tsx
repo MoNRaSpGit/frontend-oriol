@@ -24,6 +24,10 @@ interface Props {
   onVolver: () => void
   onEditar?: () => void
   detallePago?: ReactNode
+  // Solo en la boleta recien confirmada (no en reimpresiones viejas): deja
+  // volver al scanner para agregar mas productos a ESTA MISMA boleta, sin
+  // cerrarla -- se cierra unicamente con "Cerrar" o "Imprimir".
+  onAgregarProductos?: () => void
 }
 
 const BoletaImprimible = ({
@@ -35,6 +39,7 @@ const BoletaImprimible = ({
   onVolver,
   onEditar,
   detallePago,
+  onAgregarProductos,
 }: Props) => {
   const [finalEnDolares, setFinalEnDolares] = useState(false)
   const tasaDolar = useTasaDolar()
@@ -60,6 +65,11 @@ const BoletaImprimible = ({
       {detallePago}
 
       <div className="factura-acciones-bar">
+        {onAgregarProductos && (
+          <button className="btn btn-outline-secondary btn-lg" onClick={onAgregarProductos}>
+            Volver
+          </button>
+        )}
         <button className="btn btn-outline-secondary btn-lg" onClick={onVolver}>
           {textoBotonVolver}
         </button>

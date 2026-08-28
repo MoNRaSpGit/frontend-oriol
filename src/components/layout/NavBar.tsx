@@ -29,7 +29,7 @@ interface Tab {
 }
 
 const TABS_VISIBLES: Tab[] = [
-  { vista: 'scanner', etiqueta: 'Scanner', icono: <FaBarcode /> },
+  { vista: 'scanner', etiqueta: 'Producto', icono: <FaBarcode /> },
   { vista: 'factura', etiqueta: 'Factura', icono: <FaFileInvoice /> },
   { vista: 'stock', etiqueta: 'Stock', icono: <FaExclamationTriangle /> },
 ]
