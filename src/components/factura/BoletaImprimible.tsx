@@ -4,6 +4,7 @@ import { useTasaDolar } from '../../hooks/useTasaDolar'
 import CabeceraFactura, { type DatosFactura } from './CabeceraFactura'
 import TablaProductoFactura from './TablaProductoFactura'
 import PieFactura from './PieFactura'
+import ConfirmarCierreModal from './ConfirmarCierreModal'
 import type { ProductoBoleta } from '../../context/CarritoContext'
 import '../../styles/factura/factura.scss'
 import '../../styles/factura/logo.scss'
@@ -48,6 +49,7 @@ const BoletaImprimible = ({
   esCierre,
 }: Props) => {
   const [finalEnDolares, setFinalEnDolares] = useState(false)
+  const [mostrarConfirmarCierre, setMostrarConfirmarCierre] = useState(false)
   const tasaDolar = useTasaDolar()
 
   return (
@@ -77,7 +79,8 @@ const BoletaImprimible = ({
             // "Volver" (agregar mas productos) no pregunta nada -- la
             // boleta sigue abierta. "Cerrar" si, porque saca la boleta de
             // la pantalla y no se puede volver a ella desde aca.
-            if (esCierre && !window.confirm('¿Estás seguro que deseas cerrar? Esto borra la factura actual.')) {
+            if (esCierre) {
+              setMostrarConfirmarCierre(true)
               return
             }
             onVolver()
@@ -94,6 +97,16 @@ const BoletaImprimible = ({
           <FaPrint /> Imprimir
         </button>
       </div>
+
+      {mostrarConfirmarCierre && (
+        <ConfirmarCierreModal
+          onCancelar={() => setMostrarConfirmarCierre(false)}
+          onConfirmar={() => {
+            setMostrarConfirmarCierre(false)
+            onVolver()
+          }}
+        />
+      )}
     </div>
   )
 }
