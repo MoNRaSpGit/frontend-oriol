@@ -71,11 +71,6 @@ const BoletaImprimible = ({
       {detallePago}
 
       <div className="factura-acciones-bar">
-        {onAgregarProductos && (
-          <button className="btn btn-outline-secondary btn-lg" onClick={onAgregarProductos}>
-            Volver
-          </button>
-        )}
         <button
           className={`btn btn-lg ${esCierre ? 'btn-outline-danger' : 'btn-outline-secondary'}`}
           onClick={() => {
@@ -90,6 +85,11 @@ const BoletaImprimible = ({
         >
           {textoBotonVolver}
         </button>
+        {onAgregarProductos && (
+          <button className="btn btn-outline-secondary btn-lg" onClick={onAgregarProductos}>
+            Volver
+          </button>
+        )}
         <button className="btn btn-primary btn-lg" onClick={() => window.print()}>
           <FaPrint /> Imprimir
         </button>
