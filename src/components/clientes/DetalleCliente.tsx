@@ -102,7 +102,7 @@ const DetalleCliente = ({ cliente, onReimprimir, onClienteActualizado }: Props) 
       </div>
 
       <div className={`cliente-deuda-box ${Number(cliente.deuda) > 0 ? 'cliente-deuda-box--con-deuda' : ''}`}>
-        <span className="cliente-deuda-label">Deuda actual</span>
+        <span className="cliente-deuda-label">Deuda en pesos</span>
         <span className="cliente-deuda-valor">$ {Number(cliente.deuda).toFixed(2)}</span>
       </div>
       {Number(cliente.deuda_dolares) > 0 && (
