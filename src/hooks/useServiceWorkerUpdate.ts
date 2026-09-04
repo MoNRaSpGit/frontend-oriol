@@ -5,9 +5,31 @@ import { Workbox } from 'workbox-window'
 // pensado para la tablet que queda con la app abierta todo el día.
 const INTERVALO_CHEQUEO_MS = 3 * 60 * 1000
 
+// Si no hay ninguna interacción (click/tecla/toque) durante este tiempo,
+// se considera que nadie está usando la app en este momento.
+const INACTIVIDAD_MS = 2 * 60 * 1000
+// Cada cuánto se revisa, mientras hay una versión esperando, si ya se
+// llegó a ese umbral de inactividad.
+const CHEQUEO_INACTIVIDAD_MS = 15 * 1000
+
 export function useServiceWorkerUpdate() {
   const [needRefresh, setNeedRefresh] = useState(false)
   const wbRef = useRef<Workbox | null>(null)
+  const ultimaActividadRef = useRef(Date.now())
+  const autoActualizadoRef = useRef(false)
+
+  // Registra actividad del usuario para saber si la app esta "en uso" o
+  // no en cualquier momento dado.
+  useEffect(() => {
+    const marcarActividad = () => {
+      ultimaActividadRef.current = Date.now()
+    }
+    const eventos: Array<keyof WindowEventMap> = ['pointerdown', 'keydown', 'touchstart']
+    eventos.forEach((evento) => window.addEventListener(evento, marcarActividad, { passive: true }))
+    return () => {
+      eventos.forEach((evento) => window.removeEventListener(evento, marcarActividad))
+    }
+  }, [])
 
   useEffect(() => {
     // El service worker solo se genera en el build de producción (no en
@@ -49,8 +71,26 @@ export function useServiceWorkerUpdate() {
   }, [])
 
   const actualizar = () => {
+    autoActualizadoRef.current = true
     wbRef.current?.messageSkipWaiting()
   }
+
+  // Mientras hay una version nueva esperando, se fija cada quince
+  // segundos si ya pasaron los dos minutos de inactividad -- si la app
+  // quedo sin uso, actualiza sola (sin que el usuario tenga que tocar
+  // "Actualizar"). Si en cambio esta en uso activo, no hace nada y sigue
+  // mostrando el cartel para que la persona decida cuando cortar.
+  useEffect(() => {
+    if (!needRefresh || autoActualizadoRef.current) return
+    const intervalId = setInterval(() => {
+      const inactivo = Date.now() - ultimaActividadRef.current >= INACTIVIDAD_MS
+      if (inactivo) {
+        actualizar()
+        clearInterval(intervalId)
+      }
+    }, CHEQUEO_INACTIVIDAD_MS)
+    return () => clearInterval(intervalId)
+  }, [needRefresh])
 
   return { needRefresh, actualizar }
 }

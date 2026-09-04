@@ -244,7 +244,7 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
         {error && <p className="text-danger">{error}</p>}
 
         <div className="modal-acciones">
-          <button type="button" className="btn modal-btn-cancelar" onClick={onCancelar} disabled={guardando}>
+          <button type="button" className="btn modal-btn-cancelar-boleta" onClick={onCancelar} disabled={guardando}>
             Cancelar
           </button>
           <button

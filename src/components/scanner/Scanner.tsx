@@ -292,6 +292,16 @@ const Scanner = () => {
             className="form-control scanner-input"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              // Esc corta la busqueda por nombre en curso (input + lista de
+              // resultados) sin tocar el resto del formulario -- para
+              // cuando el usuario se confunde entre los resultados y
+              // prefiere arrancar de nuevo en vez de seguir escribiendo.
+              if (e.key === 'Escape') {
+                setQuery('')
+                setResultadosNombre([])
+              }
+            }}
           />
           {buscandoNombre && <p className="text-muted mb-0 mt-1">Buscando...</p>}
           {resultadosNombre.length > 0 && (

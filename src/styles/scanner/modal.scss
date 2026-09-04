@@ -170,4 +170,17 @@
       color: v.$color-white;
     }
   }
+
+  // Cancelar de la boleta (CheckoutModal, "Confirmar compra") -- a
+  // diferencia del resto de los modales, este Cancelar va en rojo para
+  // que se note mas que es una accion que descarta la venta.
+  .modal-btn-cancelar-boleta {
+    border-color: v.$color-danger;
+    color: v.$color-danger;
+
+    &:hover:not(:disabled) {
+      background-color: v.$color-danger;
+      color: v.$color-white;
+    }
+  }
 }
