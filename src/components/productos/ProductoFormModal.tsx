@@ -103,7 +103,7 @@ const ProductoFormModal = ({ titulo, textoBoton, codigoBarraFijo, onCancelar, on
                   className={currency === 'USD' ? 'btn btn-primary' : 'btn btn-outline-secondary'}
                   onClick={() => setCurrency('USD')}
                 >
-                  U$ Dólares
+                  U$S Dólares
                 </button>
               </div>
             </div>

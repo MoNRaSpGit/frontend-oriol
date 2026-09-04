@@ -310,7 +310,7 @@ const Scanner = () => {
                 <li key={producto.id} onClick={() => handleSeleccionarResultado(producto)}>
                   <span className="scanner-resultado-nombre">{producto.name}</span>
                   <span className="scanner-resultado-precio">
-                    {producto.currency === 'USD' ? 'U$' : '$'}
+                    {producto.currency === 'USD' ? 'U$S' : '$'}
                     {producto.price}
                   </span>
                 </li>
@@ -351,7 +351,7 @@ const Scanner = () => {
               <div className="scanner-item-info">
                 <div className="scanner-item-nombre">{p.name}</div>
                 <div className="scanner-item-precio">
-                  {p.currency === 'USD' ? 'U$' : '$'}
+                  {p.currency === 'USD' ? 'U$S' : '$'}
                   {p.precio.toFixed(2)} c/u
                 </div>
               </div>
@@ -392,7 +392,7 @@ const Scanner = () => {
                   </button>
                 </div>
                 <div className="scanner-item-total">
-                  {p.currency === 'USD' ? 'U$' : '$'}
+                  {p.currency === 'USD' ? 'U$S' : '$'}
                   {p.total.toFixed(2)}
                 </div>
               </div>
@@ -412,7 +412,7 @@ const Scanner = () => {
 
           <div className="scanner-total">
             {totalPesos > 0 && <div>Total $: {totalPesos.toFixed(2)}</div>}
-            {totalDolares > 0 && <div>Total U$: {totalDolares.toFixed(2)}</div>}
+            {totalDolares > 0 && <div>Total U$S: {totalDolares.toFixed(2)}</div>}
           </div>
 
           <button

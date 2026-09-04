@@ -38,7 +38,7 @@ const PieFactura = ({ totalPesos, totalDolares, finalEnDolares, setFinalEnDolare
           >
             <span className="total-label">Total:</span>
             <span className="total-value">
-              {finalEnDolares ? `U$ ${totalFinalDolares.toFixed(2)}` : `$ ${totalFinalPesos.toFixed(2)}`}
+              {finalEnDolares ? `U$S ${totalFinalDolares.toFixed(2)}` : `$ ${totalFinalPesos.toFixed(2)}`}
             </span>
           </div>
         </div>

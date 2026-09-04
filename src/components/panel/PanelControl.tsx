@@ -23,7 +23,7 @@ function getPorcentajeGananciaGuardado(): number {
 const formatearMoneda = (total: TotalPorMoneda) => {
   const partes: string[] = []
   if (total.pesos > 0) partes.push(`$ ${total.pesos.toFixed(2)}`)
-  if (total.dolares > 0) partes.push(`U$ ${total.dolares.toFixed(2)}`)
+  if (total.dolares > 0) partes.push(`U$S ${total.dolares.toFixed(2)}`)
   return partes.length > 0 ? partes.join(' + ') : '$ 0.00'
 }
 
@@ -175,7 +175,7 @@ const PanelControl = () => {
                       </span>
                       <span className={m.tipo === 'pago' ? 'panel-movimiento-monto panel-monto-menos' : 'panel-movimiento-monto panel-monto-mas'}>
                         {m.tipo === 'pago' ? '− ' : '+ '}
-                        {m.currency === 'USD' ? 'U$' : '$'} {m.monto.toFixed(2)}
+                        {m.currency === 'USD' ? 'U$S' : '$'} {m.monto.toFixed(2)}
                       </span>
                       <button
                         type="button"
@@ -197,7 +197,7 @@ const PanelControl = () => {
                         </div>
                         <span className={m.tipo === 'pago' ? 'panel-movimiento-detalle-valor panel-monto-menos' : 'panel-movimiento-detalle-valor panel-monto-mas'}>
                           {m.tipo === 'pago' ? '− ' : '+ '}
-                          {m.currency === 'USD' ? 'U$' : '$'} {m.monto.toFixed(2)}
+                          {m.currency === 'USD' ? 'U$S' : '$'} {m.monto.toFixed(2)}
                         </span>
                       </div>
                     )}

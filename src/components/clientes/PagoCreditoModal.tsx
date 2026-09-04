@@ -16,7 +16,7 @@ const PagoCreditoModal = ({ titulo, subtitulo, moneda, saldoPendiente, onCancela
   const [monto, setMonto] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
-  const simbolo = moneda === 'USD' ? 'U$' : '$'
+  const simbolo = moneda === 'USD' ? 'U$S' : '$'
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()

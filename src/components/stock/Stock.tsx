@@ -94,7 +94,7 @@ const Stock = () => {
                 <div className="stock-item-info">
                   <div className="stock-item-nombre">{p.name}</div>
                   <div className="stock-item-precio">
-                    {p.currency === 'USD' ? 'U$' : '$'}
+                    {p.currency === 'USD' ? 'U$S' : '$'}
                     {p.price}
                   </div>
                 </div>
@@ -134,7 +134,7 @@ const Stock = () => {
               <div className="stock-item-info">
                 <div className="stock-item-nombre">{p.name}</div>
                 <div className="stock-item-precio">
-                  {p.currency === 'USD' ? 'U$' : '$'}
+                  {p.currency === 'USD' ? 'U$S' : '$'}
                   {p.price}
                 </div>
               </div>

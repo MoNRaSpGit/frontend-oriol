@@ -179,7 +179,7 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
           <span className="modal-total-label">Total a cobrar</span>
           <span className="modal-total-valor">
             {totalPesos > 0 && <span>$ {totalPesos.toFixed(2)}</span>}
-            {totalDolares > 0 && <span>U$ {totalDolares.toFixed(2)}</span>}
+            {totalDolares > 0 && <span>U$S {totalDolares.toFixed(2)}</span>}
           </span>
         </div>
 

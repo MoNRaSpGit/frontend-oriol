@@ -84,7 +84,7 @@ const BoletaReimpresa = ({ venta, cliente, onVolver }: Props) => {
               <div className="linea-divisoria"></div>
               <p className="boleta-detalle-pago-titulo">Detalle de pago</p>
               {venta.pagos.map((pago) => {
-                const simboloPago = pago.moneda === 'USD' ? 'U$' : '$'
+                const simboloPago = pago.moneda === 'USD' ? 'U$S' : '$'
                 return (
                   <p key={pago.id} className="boleta-detalle-pago-linea">
                     Pago {pago.tipo === 'completo' ? 'completo' : 'parcial'} — {formatearFechaHora(pago.fecha)} — monto {simboloPago} {pago.monto.toFixed(2)}
@@ -95,7 +95,7 @@ const BoletaReimpresa = ({ venta, cliente, onVolver }: Props) => {
                 <p className="boleta-detalle-pago-saldo">Saldo pendiente: $ {venta.saldo_pendiente_pesos.toFixed(2)}</p>
               )}
               {venta.saldo_pendiente_dolares > 0 && (
-                <p className="boleta-detalle-pago-saldo">Saldo pendiente: U$ {venta.saldo_pendiente_dolares.toFixed(2)}</p>
+                <p className="boleta-detalle-pago-saldo">Saldo pendiente: U$S {venta.saldo_pendiente_dolares.toFixed(2)}</p>
               )}
             </div>
           ) : undefined

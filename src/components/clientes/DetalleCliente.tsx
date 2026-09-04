@@ -108,7 +108,7 @@ const DetalleCliente = ({ cliente, onReimprimir, onClienteActualizado }: Props) 
       {Number(cliente.deuda_dolares) > 0 && (
         <div className="cliente-deuda-box cliente-deuda-box--con-deuda mt-2">
           <span className="cliente-deuda-label">Deuda en dólares</span>
-          <span className="cliente-deuda-valor">U$ {Number(cliente.deuda_dolares).toFixed(2)}</span>
+          <span className="cliente-deuda-valor">U$S {Number(cliente.deuda_dolares).toFixed(2)}</span>
         </div>
       )}
 
@@ -156,7 +156,7 @@ const DetalleCliente = ({ cliente, onReimprimir, onClienteActualizado }: Props) 
                       </thead>
                       <tbody>
                         {items.map((item, i) => {
-                          const simboloMoneda = item.currency === 'USD' ? 'U$' : '$'
+                          const simboloMoneda = item.currency === 'USD' ? 'U$S' : '$'
                           return (
                             <tr key={i}>
                               <td>{item.cantidad}</td>
@@ -181,7 +181,7 @@ const DetalleCliente = ({ cliente, onReimprimir, onClienteActualizado }: Props) 
               {v.metodo_pago === 'credito' && v.pagos.length > 0 && (
                 <div className="historial-pagos">
                   {v.pagos.map((pago) => {
-                    const simboloPago = pago.moneda === 'USD' ? 'U$' : '$'
+                    const simboloPago = pago.moneda === 'USD' ? 'U$S' : '$'
                     return (
                       <p key={pago.id} className="historial-pago-linea text-muted mb-0">
                         Pago {pago.tipo === 'completo' ? 'completo' : 'parcial'} el {formatearFecha(pago.fecha)}: {simboloPago} {pago.monto.toFixed(2)}
@@ -195,12 +195,12 @@ const DetalleCliente = ({ cliente, onReimprimir, onClienteActualizado }: Props) 
               <div className="historial-pie">
                 <div className="historial-total">
                   {Number(v.total_pesos) > 0 && `$ ${Number(v.total_pesos).toFixed(2)} `}
-                  {Number(v.total_dolares) > 0 && `U$ ${Number(v.total_dolares).toFixed(2)}`}
+                  {Number(v.total_dolares) > 0 && `U$S ${Number(v.total_dolares).toFixed(2)}`}
                   {v.metodo_pago === 'credito' && v.pago_individual_habilitado && v.saldo_pendiente_pesos > 0 && (
                     <span className="historial-saldo-pendiente"> · saldo $ {v.saldo_pendiente_pesos.toFixed(2)}</span>
                   )}
                   {v.metodo_pago === 'credito' && v.pago_individual_habilitado && v.saldo_pendiente_dolares > 0 && (
-                    <span className="historial-saldo-pendiente"> · saldo U$ {v.saldo_pendiente_dolares.toFixed(2)}</span>
+                    <span className="historial-saldo-pendiente"> · saldo U$S {v.saldo_pendiente_dolares.toFixed(2)}</span>
                   )}
                 </div>
                 <div className="historial-botones">
@@ -219,7 +219,7 @@ const DetalleCliente = ({ cliente, onReimprimir, onClienteActualizado }: Props) 
                       className="btn historial-btn-pagar btn-sm"
                       onClick={() => setBoletaAPagar({ venta: v, moneda: 'USD' })}
                     >
-                      Pagar U$
+                      Pagar U$S
                     </button>
                   )}
                   <button

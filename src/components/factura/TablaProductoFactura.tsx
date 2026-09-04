@@ -29,7 +29,7 @@ const TablaProductoFactura = ({ productosSeleccionados, handleEliminarDeFactura 
           const descripcion = producto.descripcion || 'Sin descripción'
           const precioNum = producto.precio || 0
           const cantidad = producto.cantidad || 0
-          const simboloMoneda = producto.currency === 'USD' ? 'U$' : '$'
+          const simboloMoneda = producto.currency === 'USD' ? 'U$S' : '$'
           const subtotal = precioNum * cantidad
 
           return (

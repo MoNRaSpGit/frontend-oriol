@@ -14,7 +14,7 @@ const NOMBRES_MES = [
 ]
 
 // Todo se muestra en un unico total en pesos (los dolares se convierten
-// con la tasa vigente) -- antes se mostraba "$ X + U$ Y" por separado, lo
+// con la tasa vigente) -- antes se mostraba "$ X + U$S Y" por separado, lo
 // que quedaba confuso para la lectura rapida del resumen del mes.
 const formatearMoneda = (pesos: number, dolares: number, tasaDolar: number) =>
   `$ ${(pesos + dolares * tasaDolar).toFixed(2)}`

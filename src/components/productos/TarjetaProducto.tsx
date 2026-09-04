@@ -24,7 +24,7 @@ const TarjetaProducto = ({ producto, onActualizado, onEliminado }: Props) => {
             <h5 className="card-title">{producto.name}</h5>
             {producto.description && <p className="card-text">{producto.description}</p>}
             <p className="card-text fw-bold">
-              {producto.currency === 'USD' ? 'U$' : '$'}
+              {producto.currency === 'USD' ? 'U$S' : '$'}
               {producto.price}
             </p>
             <p className="card-text producto-stock">Stock: {producto.stock}</p>

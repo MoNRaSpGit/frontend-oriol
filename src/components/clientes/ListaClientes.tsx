@@ -41,7 +41,7 @@ const ListaClientes = ({ clientes, cargando, clienteSeleccionadoId, onSelecciona
             </div>
             {tieneDeudaDolares && (
               <div className="cliente-item-deuda cliente-item-deuda--activa">
-                Deuda: U$ {Number(c.deuda_dolares).toFixed(2)}
+                Deuda: U$S {Number(c.deuda_dolares).toFixed(2)}
               </div>
             )}
           </li>
