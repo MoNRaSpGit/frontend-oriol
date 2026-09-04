@@ -31,8 +31,11 @@ interface Props {
 const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConfirmado }: Props) => {
   const [metodo, setMetodo] = useState<MetodoPago | null>('efectivo')
   const [clientes, setClientes] = useState<Cliente[]>([])
-  const [clienteId, setClienteId] = useState<number | ''>('')
   const [vincularCliente, setVincularCliente] = useState(false)
+  // Cliente elegido o creado en el momento -- se usa tanto para credito
+  // (obligatorio) como para vincular una boleta en efectivo/tarjeta
+  // (opcional), con el mismo modal de seleccionar/crear cliente para los
+  // dos casos, en vez de que credito tenga su propio <select> aparte.
   const [clienteVinculado, setClienteVinculado] = useState<ClienteVinculado | null>(null)
   const [mostrarModalCliente, setMostrarModalCliente] = useState(false)
   const [guardando, setGuardando] = useState(false)
@@ -68,25 +71,37 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
     setError('')
 
     if (metodo === 'credito') {
-      if (!clienteId) {
-        setError('Seleccioná un cliente.')
+      if (!clienteVinculado) {
+        setError('Seleccioná un cliente o ingresá uno nuevo.')
         return
       }
       setGuardando(true)
+      let clienteIdCredito: number
+      if (clienteVinculado.tipo === 'nuevo') {
+        try {
+          const nuevoCliente = await crearCliente(clienteVinculado.nombre, clienteVinculado.telefono, clienteVinculado.cedula)
+          clienteIdCredito = nuevoCliente.id
+        } catch (err) {
+          setError(mensajeDeError(err, 'No se pudo crear el cliente.'))
+          setGuardando(false)
+          return
+        }
+      } else {
+        clienteIdCredito = clienteVinculado.clienteId!
+      }
       try {
         const venta = await registrarVentaCredito({
-          cliente_id: Number(clienteId),
+          cliente_id: clienteIdCredito,
           total_pesos: totalPesos,
           total_dolares: totalDolares,
           items,
         })
-        const cliente = clientes.find((c) => c.id === Number(clienteId))
         onConfirmado({
           metodo: 'credito',
-          nombreCliente: cliente?.nombre,
+          nombreCliente: clienteVinculado.nombre,
           ventaId: venta.id,
           fecha: venta.fecha,
-          clienteId: Number(clienteId),
+          clienteId: clienteIdCredito,
         })
       } catch (err) {
         setError(mensajeDeError(err, 'No se pudo registrar la venta. Probá de nuevo.'))
@@ -204,18 +219,22 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
         {metodo === 'credito' && (
           <div className="mb-3">
             <label className="form-label">Cliente</label>
-            <select
-              className="form-select"
-              value={clienteId}
-              onChange={(e) => setClienteId(e.target.value ? Number(e.target.value) : '')}
-            >
-              <option value="">Seleccioná un cliente...</option>
-              {clientes.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nombre}
-                </option>
-              ))}
-            </select>
+            {!clienteVinculado ? (
+              <div>
+                <button type="button" className="btn btn-primary" onClick={() => setMostrarModalCliente(true)}>
+                  Seleccionar cliente
+                </button>
+              </div>
+            ) : (
+              <div className="modal-cliente-vinculado">
+                <span>
+                  Cliente: <strong>{clienteVinculado.nombre}</strong>
+                </span>
+                <button type="button" className="btn btn-link p-0" onClick={() => setMostrarModalCliente(true)}>
+                  Cambiar
+                </button>
+              </div>
+            )}
           </div>
         )}
 
