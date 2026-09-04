@@ -11,7 +11,12 @@ export function addOrUpdateProductoEnLista(
         ? {
             ...p,
             name: producto.name,
-            descripcion: producto.description,
+            // El catalogo no tiene un campo de descripcion real (el
+            // formulario "Agregar producto" nunca lo pide, siempre queda
+            // vacio) -- se usa el nombre como descripcion, igual que ya
+            // hace BoletaReimpresa.tsx al reimprimir una venta vieja, para
+            // que la columna "Descripcion" de la boleta no quede en blanco.
+            descripcion: producto.name,
             precio: producto.price,
             currency: producto.currency || 'UYU',
             cantidad: p.cantidad + 1,
@@ -25,7 +30,9 @@ export function addOrUpdateProductoEnLista(
     {
       codigo: producto.id,
       name: producto.name,
-      descripcion: producto.description,
+      // Mismo criterio que arriba: no hay descripcion real en el
+      // catalogo, se usa el nombre.
+      descripcion: producto.name,
       precio: producto.price,
       currency: producto.currency || 'UYU',
       cantidad: 1,
@@ -49,7 +56,19 @@ export function actualizarDatosEnLista(
 ): ProductoBoleta[] {
   return prev.map((p) =>
     p.codigo === codigo
-      ? { ...p, name: datos.name, precio: datos.precio, currency: datos.currency, total: p.cantidad * datos.precio }
+      ? {
+          ...p,
+          name: datos.name,
+          // Mismo criterio que al agregar (ver addOrUpdateProductoEnLista):
+          // la descripcion es el nombre. Sin esto, editar un producto que
+          // ya estaba en la boleta actualizaba el nombre pero dejaba la
+          // descripcion pegada con el nombre viejo -- por eso "a veces
+          // agarra y a veces no", dependia de si se habia editado o no.
+          descripcion: datos.name,
+          precio: datos.precio,
+          currency: datos.currency,
+          total: p.cantidad * datos.precio,
+        }
       : p
   )
 }
