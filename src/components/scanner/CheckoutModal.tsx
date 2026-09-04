@@ -32,6 +32,7 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
   const [metodo, setMetodo] = useState<MetodoPago | null>('efectivo')
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [clienteId, setClienteId] = useState<number | ''>('')
+  const [vincularCliente, setVincularCliente] = useState(false)
   const [clienteVinculado, setClienteVinculado] = useState<ClienteVinculado | null>(null)
   const [mostrarModalCliente, setMostrarModalCliente] = useState(false)
   const [guardando, setGuardando] = useState(false)
@@ -40,10 +41,8 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
 
   // Ventas a crédito siempre necesitan la lista de clientes; en
   // efectivo/tarjeta solo se pide si el usuario decide vincular una boleta
-  // a un cliente (opcional, para poder reimprimirla después) -- se
-  // necesita la lista apenas se abre el modal de vincular, no recien
-  // cuando ya eligio uno.
-  const necesitaListaClientes = metodo === 'credito' || mostrarModalCliente || clienteVinculado !== null
+  // a un cliente (opcional, para poder reimprimirla después).
+  const necesitaListaClientes = metodo === 'credito' || vincularCliente
 
   useEffect(() => {
     modalRef.current?.focus()
@@ -100,7 +99,11 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
     // puede vincular a un cliente (nuevo o existente) para poder
     // reimprimir la boleta más adelante. No afecta la deuda.
     let clienteIdFinal: number | undefined
-    if (clienteVinculado) {
+    if (vincularCliente) {
+      if (!clienteVinculado) {
+        setError('Seleccioná un cliente o ingresá uno nuevo.')
+        return
+      }
       if (clienteVinculado.tipo === 'nuevo') {
         setGuardando(true)
         try {
@@ -131,7 +134,7 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
       })
       onConfirmado({
         metodo: metodo as 'efectivo' | 'tarjeta',
-        nombreCliente: clienteVinculado?.nombre,
+        nombreCliente: vincularCliente ? clienteVinculado?.nombre : undefined,
         ventaId: venta.id,
         fecha: venta.fecha,
         clienteId: clienteIdFinal,
@@ -218,20 +221,30 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
 
         {(metodo === 'efectivo' || metodo === 'tarjeta') && (
           <div className="mb-3 modal-vincular-cliente">
-            {!clienteVinculado ? (
-              <button type="button" className="btn btn-primary" onClick={() => setMostrarModalCliente(true)}>
-                Guardar esta boleta
-              </button>
-            ) : (
-              <div className="modal-cliente-vinculado">
+            <label className="modal-checkbox-label">
+              <input
+                type="checkbox"
+                checked={vincularCliente}
+                onChange={(e) => {
+                  const checked = e.target.checked
+                  setVincularCliente(checked)
+                  if (checked) {
+                    setMostrarModalCliente(true)
+                  } else {
+                    setClienteVinculado(null)
+                  }
+                }}
+              />
+              Guardar boleta
+            </label>
+
+            {vincularCliente && clienteVinculado && (
+              <div className="mt-2 modal-cliente-vinculado">
                 <span>
                   Cliente: <strong>{clienteVinculado.nombre}</strong>
                 </span>
                 <button type="button" className="btn btn-link p-0" onClick={() => setMostrarModalCliente(true)}>
                   Cambiar
-                </button>
-                <button type="button" className="btn btn-link p-0" onClick={() => setClienteVinculado(null)}>
-                  Quitar
                 </button>
               </div>
             )}
@@ -258,7 +271,10 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
       {mostrarModalCliente && (
         <VincularClienteModal
           clientes={clientes}
-          onCancelar={() => setMostrarModalCliente(false)}
+          onCancelar={() => {
+            setMostrarModalCliente(false)
+            if (!clienteVinculado) setVincularCliente(false)
+          }}
           onConfirmar={(cliente) => {
             setClienteVinculado(cliente)
             setMostrarModalCliente(false)
