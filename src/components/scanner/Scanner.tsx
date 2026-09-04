@@ -361,14 +361,28 @@ const Scanner = () => {
                 >
                   Editar
                 </button>
+                <button
+                  type="button"
+                  className="scanner-item-eliminar"
+                  onClick={() => removeProduct(p.codigo)}
+                  title="Quitar producto"
+                  aria-label={`Quitar ${p.name} de la boleta`}
+                >
+                  ×
+                </button>
               </div>
               <div className="scanner-item-resultado">
                 <div className="scanner-item-cantidad-controles">
                   <button
                     type="button"
                     className="scanner-item-cant-btn"
-                    onClick={() => (p.cantidad > 1 ? updateProductQuantity(p.codigo, p.cantidad - 1) : removeProduct(p.codigo))}
-                    title={p.cantidad > 1 ? 'Restar 1 unidad' : 'Quitar producto'}
+                    // El minimo de cantidad es 1 -- para sacar el producto
+                    // del todo ahora se usa la cruz roja, no restar hasta
+                    // llegar a 0 (evita que alguien lo saque sin querer
+                    // restando de mas).
+                    disabled={p.cantidad <= 1}
+                    onClick={() => updateProductQuantity(p.codigo, p.cantidad - 1)}
+                    title="Restar 1 unidad"
                     aria-label={`Restar 1 unidad de ${p.name}`}
                   >
                     −

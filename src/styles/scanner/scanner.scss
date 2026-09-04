@@ -147,7 +147,9 @@
 .scanner-item-editar-wrap {
   flex: 1 1 0;
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 12px;
   padding-left: 20px;
   border-left: 1px solid v.$color-border-light;
 }
@@ -199,6 +201,15 @@
   &:hover {
     background-color: v.$color-bg-light;
   }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: v.$color-white;
+    }
+  }
 }
 
 .scanner-item-total {
@@ -222,6 +233,28 @@
 
   &:hover {
     background-color: rgba(29, 95, 174, 0.1);
+  }
+}
+
+// Cruz roja para sacar un producto de la boleta -- mas grande que los
+// botones de +/- a proposito (interfaz pensada para gente de 55+, tiene
+// que ser facil de ver y de tocar).
+.scanner-item-eliminar {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 2px solid v.$color-danger;
+  border-radius: 50%;
+  background-color: v.$color-white;
+  color: v.$color-danger;
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    background-color: v.$color-danger;
+    color: v.$color-white;
   }
 }
 
