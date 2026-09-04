@@ -1,8 +1,12 @@
 @use '../variables' as v;
 
 .aviso-version {
+  // Arriba en vez de abajo: mas visible, y no se pisa con la barra de
+  // acciones de la boleta (Confirmar/Cancelar) que vive al pie de la
+  // pantalla. Sigue siendo una franja fija que no bloquea nada -- el
+  // cliente sigue escaneando/vendiendo abajo mientras esta a la vista.
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
   right: 0;
   z-index: 2100;
@@ -14,7 +18,7 @@
   background-color: v.$color-primary-dark;
   color: v.$color-white;
   font-weight: 600;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 @media print {
