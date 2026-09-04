@@ -217,14 +217,12 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
         </div>
 
         {metodo === 'credito' && (
-          <div className="mb-3">
-            <label className="form-label">Cliente</label>
+          <div className="mb-3 modal-vincular-cliente">
+            <label className="form-label mb-2">Cliente</label>
             {!clienteVinculado ? (
-              <div>
-                <button type="button" className="btn btn-primary" onClick={() => setMostrarModalCliente(true)}>
-                  Seleccionar cliente
-                </button>
-              </div>
+              <button type="button" className="btn btn-primary" onClick={() => setMostrarModalCliente(true)}>
+                Seleccionar cliente
+              </button>
             ) : (
               <div className="modal-cliente-vinculado">
                 <span>
