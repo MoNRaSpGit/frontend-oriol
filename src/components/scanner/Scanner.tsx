@@ -339,6 +339,9 @@ const Scanner = () => {
               <span className="scanner-item-cantidad">Cant.</span>
               <span className="scanner-item-total">Total</span>
             </span>
+            <span className="scanner-item-cerrar-wrap">
+              <span className="scanner-item-eliminar scanner-header-spacer" />
+            </span>
           </div>
           {productosSeleccionados.map((p) => (
             <div className="scanner-item" key={p.codigo}>
@@ -360,15 +363,6 @@ const Scanner = () => {
                   aria-label={`Editar ${p.name}`}
                 >
                   Editar
-                </button>
-                <button
-                  type="button"
-                  className="scanner-item-eliminar"
-                  onClick={() => removeProduct(p.codigo)}
-                  title="Quitar producto"
-                  aria-label={`Quitar ${p.name} de la boleta`}
-                >
-                  ×
                 </button>
               </div>
               <div className="scanner-item-resultado">
@@ -401,6 +395,17 @@ const Scanner = () => {
                   {p.currency === 'USD' ? 'U$' : '$'}
                   {p.total.toFixed(2)}
                 </div>
+              </div>
+              <div className="scanner-item-cerrar-wrap">
+                <button
+                  type="button"
+                  className="scanner-item-eliminar"
+                  onClick={() => removeProduct(p.codigo)}
+                  title="Quitar producto"
+                  aria-label={`Quitar ${p.name} de la boleta`}
+                >
+                  ×
+                </button>
               </div>
             </div>
           ))}
