@@ -79,6 +79,7 @@ const BoletaConfirmada = ({
         totalDolares={totalDolares}
         textoBotonVolver="Cerrar"
         onVolver={onCerrar}
+        esCierre
         onEditar={() => setMostrarEditar(true)}
         onAgregarProductos={() =>
           onAgregarProductos({

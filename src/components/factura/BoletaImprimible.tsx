@@ -28,6 +28,11 @@ interface Props {
   // volver al scanner para agregar mas productos a ESTA MISMA boleta, sin
   // cerrarla -- se cierra unicamente con "Cerrar" o "Imprimir".
   onAgregarProductos?: () => void
+  // true solo cuando textoBotonVolver es el "Cerrar" de una boleta recien
+  // confirmada (no en reimpresiones, donde "Volver" es solo navegacion sin
+  // consecuencias): pinta el boton de rojo y pide confirmacion antes de
+  // sacar la boleta de la pantalla.
+  esCierre?: boolean
 }
 
 const BoletaImprimible = ({
@@ -40,6 +45,7 @@ const BoletaImprimible = ({
   onEditar,
   detallePago,
   onAgregarProductos,
+  esCierre,
 }: Props) => {
   const [finalEnDolares, setFinalEnDolares] = useState(false)
   const tasaDolar = useTasaDolar()
@@ -70,7 +76,18 @@ const BoletaImprimible = ({
             Volver
           </button>
         )}
-        <button className="btn btn-outline-secondary btn-lg" onClick={onVolver}>
+        <button
+          className={`btn btn-lg ${esCierre ? 'btn-outline-danger' : 'btn-outline-secondary'}`}
+          onClick={() => {
+            // "Volver" (agregar mas productos) no pregunta nada -- la
+            // boleta sigue abierta. "Cerrar" si, porque saca la boleta de
+            // la pantalla y no se puede volver a ella desde aca.
+            if (esCierre && !window.confirm('¿Estás seguro que deseas cerrar? Esto borra la factura actual.')) {
+              return
+            }
+            onVolver()
+          }}
+        >
           {textoBotonVolver}
         </button>
         <button className="btn btn-primary btn-lg" onClick={() => window.print()}>
