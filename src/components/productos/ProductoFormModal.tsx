@@ -19,7 +19,6 @@ const ProductoFormModal = ({ titulo, textoBoton, codigoBarraFijo, onCancelar, on
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
   const [stock, setStock] = useState('')
-  const [codigoBarra, setCodigoBarra] = useState('')
   const [currency, setCurrency] = useState<'UYU' | 'USD'>('UYU')
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
@@ -48,7 +47,7 @@ const ProductoFormModal = ({ titulo, textoBoton, codigoBarraFijo, onCancelar, on
         name: name.trim(),
         price: precioNum,
         currency,
-        codigo_barra: codigoBarraFijo ?? (codigoBarra.trim() || undefined),
+        codigo_barra: codigoBarraFijo,
         stock: stockNum,
       })
       onGuardado(producto)
@@ -122,18 +121,6 @@ const ProductoFormModal = ({ titulo, textoBoton, codigoBarraFijo, onCancelar, on
               placeholder="0"
             />
           </div>
-
-          {!codigoBarraFijo && (
-            <div className="mb-3">
-              <label className="form-label">Código de barra (opcional)</label>
-              <input
-                type="text"
-                className="form-control"
-                value={codigoBarra}
-                onChange={(e) => setCodigoBarra(e.target.value)}
-              />
-            </div>
-          )}
 
           {error && <p className="text-danger">{error}</p>}
 
