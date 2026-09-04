@@ -43,14 +43,12 @@
     box-shadow: v.$shadow-card;
   }
 
+  // Cliente seleccionado: antes era un azul solido bien fuerte (tapaba la
+  // letra) -- ahora un tinte suave y transparente, con el borde marcando
+  // cual esta activo, sin perder legibilidad.
   &.active {
-    background-color: v.$color-primary;
+    background-color: rgba(v.$color-primary, 0.12);
     border-color: v.$color-primary;
-    color: v.$color-white;
-
-    .cliente-item-deuda--activa {
-      color: v.$color-white;
-    }
   }
 }
 
