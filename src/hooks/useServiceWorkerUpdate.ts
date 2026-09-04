@@ -17,6 +17,7 @@ export function useServiceWorkerUpdate() {
   const wbRef = useRef<Workbox | null>(null)
   const ultimaActividadRef = useRef(Date.now())
   const autoActualizadoRef = useRef(false)
+  const recargoRef = useRef(false)
 
   // Registra actividad del usuario para saber si la app esta "en uso" o
   // no en cualquier momento dado.
@@ -55,7 +56,10 @@ export function useServiceWorkerUpdate() {
     // solo se agregaba al hacer clic en "Actualizar", esta pestaña se
     // perdía el evento (ya había pasado) y el botón quedaba pegado
     // pidiendo un F5 manual para arreglarse.
-    wb.addEventListener('controlling', () => window.location.reload())
+    wb.addEventListener('controlling', () => {
+      recargoRef.current = true
+      window.location.reload()
+    })
 
     let intervalId: ReturnType<typeof setInterval> | undefined
     wb.register().then((registration) => {
@@ -70,9 +74,30 @@ export function useServiceWorkerUpdate() {
     }
   }, [])
 
-  const actualizar = () => {
+  // Cartel/actualizacion "trancados": si hubo varios deploys seguidos con
+  // la pestana abierta, la referencia interna de workbox-window puede
+  // quedar apuntando a un service worker que ya no es el que esta
+  // esperando de verdad -- el mensaje de abajo no llega a ningun lado y
+  // el cartel nunca se va. Por eso, ademas de wb.messageSkipWaiting(),
+  // se busca el worker que REALMENTE esta en estado "waiting" ahora
+  // mismo y se le manda el mensaje directo. Y si ninguno de los dos
+  // termina en un reload en unos segundos, se fuerza un reload de
+  // todas formas (peor caso: se ve la version vieja una vez mas).
+  const actualizar = async () => {
     autoActualizadoRef.current = true
     wbRef.current?.messageSkipWaiting()
+
+    try {
+      const registration = await navigator.serviceWorker.getRegistration(import.meta.env.BASE_URL)
+      registration?.waiting?.postMessage({ type: 'SKIP_WAITING' })
+    } catch {
+      // Sin registro disponible -- no hay nada mas para intentar aca,
+      // queda el reload forzado de abajo como ultimo recurso.
+    }
+
+    setTimeout(() => {
+      if (!recargoRef.current) window.location.reload()
+    }, 5000)
   }
 
   // Mientras hay una version nueva esperando, se fija cada quince
