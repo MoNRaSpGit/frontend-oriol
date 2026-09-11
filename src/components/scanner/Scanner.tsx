@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useCarrito, type ProductoBoleta } from '../../context/CarritoContext'
 import { useToast } from '../../context/ToastContext'
+import { useTasaDolar } from '../../hooks/useTasaDolar'
 import { getProductoPorCodigoBarra, buscarProductosPorNombre } from '../../services/productos.service'
 import { actualizarVenta } from '../../services/ventas.service'
 import ProductoFormModal from '../productos/ProductoFormModal'
@@ -66,6 +67,13 @@ const Scanner = () => {
   const [ventaAbierta, setVentaAbierta] = useState<VentaAbiertaInfo | null>(null)
   const [agregandoProductos, setAgregandoProductos] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const tasaDolar = useTasaDolar()
+  // Mismo criterio que el "Total" clickeable de la boleta (PieFactura):
+  // ademas del desglose por moneda (que puede dejar dos numeros sueltos,
+  // uno en $ y otro en U$S, si hay productos de las dos monedas en el
+  // carrito), se muestra un total UNICO convertido a una sola moneda --
+  // clickeable para cambiar cual.
+  const [totalUnificadoEnDolares, setTotalUnificadoEnDolares] = useState(false)
 
   const modoNombre = query.trim().length > 0 && !esSoloDigitos(query)
 
@@ -249,6 +257,8 @@ const Scanner = () => {
     if (p.currency === 'USD') totalDolares += p.total
     else totalPesos += p.total
   })
+  const totalUnificadoPesos = totalPesos + totalDolares * tasaDolar
+  const totalUnificadoDolares = totalDolares + totalPesos / tasaDolar
 
   if (boletaParaImprimir) {
     return (
@@ -413,6 +423,19 @@ const Scanner = () => {
           <div className="scanner-total">
             {totalPesos > 0 && <div>Total $: {totalPesos.toFixed(2)}</div>}
             {totalDolares > 0 && <div>Total U$S: {totalDolares.toFixed(2)}</div>}
+
+            {/* Mismo comportamiento que el "Total" clickeable de la
+                boleta (PieFactura): un total unico, convertido con la
+                tasa del dia, que se banca solo o mezclado con productos
+                de las dos monedas -- clickear cambia en cual de las dos
+                se ve. */}
+            <div
+              className="scanner-total-final"
+              onClick={() => setTotalUnificadoEnDolares((valor) => !valor)}
+              title="Click para cambiar la moneda del total"
+            >
+              Total: {totalUnificadoEnDolares ? `U$S ${totalUnificadoDolares.toFixed(2)}` : `$ ${totalUnificadoPesos.toFixed(2)}`}
+            </div>
           </div>
 
           <button

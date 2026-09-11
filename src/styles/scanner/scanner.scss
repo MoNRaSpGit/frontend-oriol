@@ -275,3 +275,13 @@
   font-weight: 700;
   text-align: right;
 }
+
+// Total unico convertido a una sola moneda, clickeable para cambiar cual
+// -- mismo criterio que el "Total" clickeable de la boleta (PieFactura).
+.scanner-total-final {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed v.$color-border-medium;
+  color: v.$color-danger;
+  cursor: pointer;
+}
