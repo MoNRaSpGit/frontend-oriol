@@ -73,6 +73,15 @@
   }
 }
 
+// Clickeable para cambiar la moneda mostrada en TODAS las tarjetas a la
+// vez (ver TarjetaProducto/Productos.tsx) -- mismo criterio visual que el
+// "Total" clickeable de la boleta.
+.producto-precio-toggle {
+  cursor: pointer;
+  text-decoration: underline dashed;
+  text-underline-offset: 3px;
+}
+
 .producto-stock {
   font-size: 0.95rem;
   color: v.$color-text-secondary;

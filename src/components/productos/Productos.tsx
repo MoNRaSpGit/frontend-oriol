@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { buscarProductosPorNombre } from '../../services/productos.service'
+import { useTasaDolar } from '../../hooks/useTasaDolar'
 import { mensajeDeError } from '../../utils/errores'
 import { useToast } from '../../context/ToastContext'
 import type { Producto } from '../../types/producto'
@@ -13,6 +14,13 @@ const Productos = () => {
   const [error, setError] = useState('')
   const [modalAbierto, setModalAbierto] = useState(false)
   const { mostrarToast } = useToast()
+  const tasaDolar = useTasaDolar()
+  // Un solo interruptor para TODA la lista (no por tarjeta): asi todos los
+  // productos se ven en la misma moneda a la vez, se conviertan o no --
+  // igual que el "Total" clickeable de la boleta (PieFactura). Sin esto,
+  // clickear un producto en dolares y dejar otro en pesos sin tocar
+  // mezclaba las dos monedas en la misma pantalla.
+  const [mostrarEnDolares, setMostrarEnDolares] = useState(false)
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -81,6 +89,9 @@ const Productos = () => {
             <TarjetaProducto
               key={producto.id}
               producto={producto}
+              tasaDolar={tasaDolar}
+              mostrarEnDolares={mostrarEnDolares}
+              onToggleMoneda={() => setMostrarEnDolares((valor) => !valor)}
               onActualizado={handleProductoActualizado}
               onEliminado={handleProductoEliminado}
             />
