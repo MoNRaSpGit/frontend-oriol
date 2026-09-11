@@ -276,12 +276,9 @@
   text-align: right;
 }
 
-// Total unico convertido a una sola moneda, clickeable para cambiar cual
-// -- mismo criterio que el "Total" clickeable de la boleta (PieFactura).
-.scanner-total-final {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed v.$color-border-medium;
-  color: v.$color-danger;
+// El total de siempre (sin renglon nuevo), ahora clickeable para
+// convertir todo el carrito a esa moneda -- mismo criterio que el "Total"
+// clickeable de la boleta (PieFactura).
+.scanner-total-clickeable {
   cursor: pointer;
 }

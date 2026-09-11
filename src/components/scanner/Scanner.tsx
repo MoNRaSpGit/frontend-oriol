@@ -68,12 +68,38 @@ const Scanner = () => {
   const [agregandoProductos, setAgregandoProductos] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const tasaDolar = useTasaDolar()
-  // Mismo criterio que el "Total" clickeable de la boleta (PieFactura):
-  // ademas del desglose por moneda (que puede dejar dos numeros sueltos,
-  // uno en $ y otro en U$S, si hay productos de las dos monedas en el
-  // carrito), se muestra un total UNICO convertido a una sola moneda --
-  // clickeable para cambiar cual.
-  const [totalUnificadoEnDolares, setTotalUnificadoEnDolares] = useState(false)
+  // null = "modo original": cada producto se ve en su propia moneda, tal
+  // cual esta cargado en el catalogo (comportamiento de siempre). Si se
+  // clickea el total, se fuerza TODO el carrito (cada renglon + el total)
+  // a verse en esa moneda -- solo para ESTA venta, es una conversion de
+  // pantalla nomas. No toca el producto real: la proxima vez que se
+  // busque, vuelve a aparecer en su moneda original de siempre.
+  const [vistaMoneda, setVistaMoneda] = useState<'USD' | 'UYU' | null>(null)
+
+  // Si el carrito queda vacio (venta confirmada, cancelada, o se sacaron
+  // los productos a mano de a uno) se vuelve al modo original -- para que
+  // la proxima venta no arranque ya convertida por accidente.
+  useEffect(() => {
+    if (productosSeleccionados.length === 0) setVistaMoneda(null)
+  }, [productosSeleccionados.length])
+
+  // Aplica vistaMoneda a un producto del carrito -- si ya esta en esa
+  // moneda no hace nada, si no, convierte precio unitario y subtotal con
+  // la tasa del dia.
+  const convertirVista = (p: ProductoBoleta, moneda: 'USD' | 'UYU'): ProductoBoleta => {
+    if (p.currency === moneda) return p
+    const factor = p.currency === 'USD' ? tasaDolar : 1 / tasaDolar
+    return { ...p, currency: moneda, precio: p.precio * factor, total: p.total * factor }
+  }
+
+  // Lista "para mostrar (y vender)": si no se toco el total, es la misma
+  // lista real del carrito; si se clickeo el total, es la misma lista
+  // pero con cada producto convertido a la moneda elegida. Se usa tanto
+  // para pintar la pantalla como para lo que se manda a confirmar -- asi
+  // la boleta sale en la moneda que se ve en el momento de confirmar.
+  const productosParaVista = vistaMoneda
+    ? productosSeleccionados.map((p) => convertirVista(p, vistaMoneda))
+    : productosSeleccionados
 
   const modoNombre = query.trim().length > 0 && !esSoloDigitos(query)
 
@@ -181,7 +207,7 @@ const Scanner = () => {
     // la próxima venta sin esperar a que alguien imprima.
     setBoletaParaImprimir({
       ventaId: info.ventaId,
-      productos: productosSeleccionados,
+      productos: productosParaVista,
       totalPesos,
       totalDolares,
       metodoPago: info.metodo,
@@ -201,7 +227,7 @@ const Scanner = () => {
     if (!ventaAbierta || productosSeleccionados.length === 0 || agregandoProductos) return
     setError('')
     setAgregandoProductos(true)
-    const itemsNuevos: ItemVenta[] = productosSeleccionados.map((p) => ({
+    const itemsNuevos: ItemVenta[] = productosParaVista.map((p) => ({
       id: p.codigo,
       name: p.name,
       cantidad: p.cantidad,
@@ -212,7 +238,7 @@ const Scanner = () => {
       const venta = await actualizarVenta(ventaAbierta.ventaId, { items_nuevos: itemsNuevos })
       setBoletaParaImprimir({
         ventaId: ventaAbierta.ventaId,
-        productos: mergearProductos(ventaAbierta.productosPrevios, productosSeleccionados),
+        productos: mergearProductos(ventaAbierta.productosPrevios, productosParaVista),
         totalPesos: venta.total_pesos,
         totalDolares: venta.total_dolares,
         metodoPago: ventaAbierta.metodoPago,
@@ -253,12 +279,10 @@ const Scanner = () => {
 
   let totalPesos = 0
   let totalDolares = 0
-  productosSeleccionados.forEach((p) => {
+  productosParaVista.forEach((p) => {
     if (p.currency === 'USD') totalDolares += p.total
     else totalPesos += p.total
   })
-  const totalUnificadoPesos = totalPesos + totalDolares * tasaDolar
-  const totalUnificadoDolares = totalDolares + totalPesos / tasaDolar
 
   if (boletaParaImprimir) {
     return (
@@ -353,7 +377,7 @@ const Scanner = () => {
               <span className="scanner-item-eliminar scanner-header-spacer" />
             </span>
           </div>
-          {productosSeleccionados.map((p) => (
+          {productosParaVista.map((p) => (
             <div className="scanner-item" key={p.codigo}>
               <div className="scanner-item-img scanner-item-img--vacia">
                 <span>img</span>
@@ -421,21 +445,29 @@ const Scanner = () => {
           ))}
 
           <div className="scanner-total">
-            {totalPesos > 0 && <div>Total $: {totalPesos.toFixed(2)}</div>}
-            {totalDolares > 0 && <div>Total U$S: {totalDolares.toFixed(2)}</div>}
-
-            {/* Mismo comportamiento que el "Total" clickeable de la
-                boleta (PieFactura): un total unico, convertido con la
-                tasa del dia, que se banca solo o mezclado con productos
-                de las dos monedas -- clickear cambia en cual de las dos
-                se ve. */}
-            <div
-              className="scanner-total-final"
-              onClick={() => setTotalUnificadoEnDolares((valor) => !valor)}
-              title="Click para cambiar la moneda del total"
-            >
-              Total: {totalUnificadoEnDolares ? `U$S ${totalUnificadoDolares.toFixed(2)}` : `$ ${totalUnificadoPesos.toFixed(2)}`}
-            </div>
+            {/* El mismo total de siempre, sin agregar ningun renglon
+                nuevo -- ahora clickeable: clickear "Total $" pasa TODO el
+                carrito (cada renglon + este total) a dolares, y clickear
+                "Total U$S" lo pasa a pesos. Es solo para ESTA venta, ver
+                productosParaVista/convertirVista mas arriba. */}
+            {totalPesos > 0 && (
+              <div
+                className="scanner-total-clickeable"
+                onClick={() => setVistaMoneda('USD')}
+                title="Click para ver todo en dólares"
+              >
+                Total $: {totalPesos.toFixed(2)}
+              </div>
+            )}
+            {totalDolares > 0 && (
+              <div
+                className="scanner-total-clickeable"
+                onClick={() => setVistaMoneda('UYU')}
+                title="Click para ver todo en pesos"
+              >
+                Total U$S: {totalDolares.toFixed(2)}
+              </div>
+            )}
           </div>
 
           <button
@@ -470,7 +502,7 @@ const Scanner = () => {
 
       {mostrarCheckout && (
         <CheckoutModal
-          productos={productosSeleccionados}
+          productos={productosParaVista}
           totalPesos={totalPesos}
           totalDolares={totalDolares}
           onCancelar={() => setMostrarCheckout(false)}
