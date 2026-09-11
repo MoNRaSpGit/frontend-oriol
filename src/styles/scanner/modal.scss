@@ -80,6 +80,45 @@
   color: v.$color-success;
 }
 
+// Saca las flechitas de subir/bajar de un <input type="number"> (dan
+// problemas: cambian el valor con el scroll del mouse, ocupan lugar, se
+// ven distinto en cada navegador). Queda un input numerico "de toda la
+// vida", sin eso.
+.input-sin-flechas {
+  -moz-appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+// Un toque de color para diferenciar de un vistazo el campo en dolares del
+// campo en pesos (mismos colores que ya usa el resto de la app: azul
+// primario y verde de exito).
+.input-precio-usd {
+  border-color: v.$color-primary;
+  color: v.$color-primary-dark;
+  font-weight: 700;
+
+  &:focus {
+    border-color: v.$color-primary;
+    box-shadow: 0 0 0 0.2rem rgba(29, 95, 174, 0.2);
+  }
+}
+
+.input-precio-uyu {
+  border-color: v.$color-success;
+  color: v.$color-success;
+  font-weight: 700;
+
+  &:focus {
+    border-color: v.$color-success;
+    box-shadow: 0 0 0 0.2rem rgba(30, 122, 52, 0.2);
+  }
+}
+
 .modal-metodo-pago {
   display: flex;
   gap: 10px;

@@ -188,7 +188,7 @@ const EditarProductoModal = ({ codigo, onCancelar, onGuardado, onEliminado, cant
                 type="number"
                 step="0.01"
                 min="0"
-                className="form-control"
+                className="form-control input-sin-flechas input-precio-usd"
                 value={priceUsd}
                 onChange={(e) => handlePriceUsdChange(e.target.value)}
               />
@@ -200,7 +200,7 @@ const EditarProductoModal = ({ codigo, onCancelar, onGuardado, onEliminado, cant
                 type="number"
                 step="0.01"
                 min="0"
-                className="form-control"
+                className="form-control input-sin-flechas input-precio-uyu"
                 value={priceUyu}
                 onChange={(e) => handlePriceUyuChange(e.target.value)}
               />
