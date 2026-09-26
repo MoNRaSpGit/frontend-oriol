@@ -55,6 +55,44 @@
 }
 
 /* ----------------
+   CANTIDAD +/- EN LA FACTURA (26/09/2026, pedido explicito)
+   Mismos botones que ya tiene el Scanner ("- cant +"). En pantalla se ven
+   los botones; al imprimir, d-print-none/d-print-inline (Bootstrap) los
+   cambia por el numero solo, para no imprimir controles interactivos.
+   ---------------- */
+.factura-cantidad-controles {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.factura-cantidad {
+  font-weight: 700;
+  min-width: 22px;
+  text-align: center;
+}
+
+.factura-cant-btn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #999;
+  border-radius: 50%;
+  background-color: v.$color-white;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.factura-cant-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ----------------
    DETALLE DE PAGO (reimpresión de boletas de crédito con pagos)
    ---------------- */
 .boleta-detalle-pago-titulo {

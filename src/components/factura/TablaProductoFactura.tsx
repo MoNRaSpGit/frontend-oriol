@@ -7,9 +7,15 @@ interface Props {
   // se usa para reimprimir una boleta vieja, donde no tiene sentido borrar
   // ítems de una venta que ya pasó.
   handleEliminarDeFactura?: (codigo: number) => void
+  // Pedido explicito (26/09/2026): poder sumar/restar cantidad directo en
+  // la factura, con los mismos botones "- cant +" que ya tiene el Scanner
+  // (misma logica: minimo 1, para sacar del todo se usa la cruz roja). Si
+  // no viene (reimpresion de una boleta vieja), la cantidad queda como
+  // texto fijo, igual que antes.
+  handleActualizarCantidad?: (codigo: number, cantidad: number) => void
 }
 
-const TablaProductoFactura = ({ productosSeleccionados, handleEliminarDeFactura }: Props) => {
+const TablaProductoFactura = ({ productosSeleccionados, handleEliminarDeFactura, handleActualizarCantidad }: Props) => {
   return (
     <table
       className="table table-bordered table-hover table-sm"
@@ -34,7 +40,36 @@ const TablaProductoFactura = ({ productosSeleccionados, handleEliminarDeFactura 
 
           return (
             <tr key={producto.codigo}>
-              <td>{cantidad}</td>
+              <td>
+                {handleActualizarCantidad ? (
+                  <>
+                    <div className="factura-cantidad-controles d-print-none">
+                      <button
+                        type="button"
+                        className="factura-cant-btn"
+                        disabled={cantidad <= 1}
+                        onClick={() => handleActualizarCantidad(producto.codigo, cantidad - 1)}
+                        title="Restar 1 unidad"
+                        aria-label={`Restar 1 unidad de ${descripcion}`}
+                      >
+                        −
+                      </button>
+                      <span className="factura-cantidad">{cantidad}</span>
+                      <button
+                        type="button"
+                        className="factura-cant-btn"
+                        onClick={() => handleActualizarCantidad(producto.codigo, cantidad + 1)}
+                        aria-label={`Sumar 1 unidad a ${descripcion}`}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <span className="d-none d-print-inline">{cantidad}</span>
+                  </>
+                ) : (
+                  cantidad
+                )}
+              </td>
               <td>{descripcion}</td>
               <td>
                 {simboloMoneda}

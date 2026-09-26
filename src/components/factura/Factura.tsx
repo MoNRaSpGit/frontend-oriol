@@ -15,7 +15,7 @@ const obtenerFechaActual = () =>
   new Date().toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
 const Factura = () => {
-  const { productosSeleccionados, removeProduct, vaciarCarrito } = useCarrito()
+  const { productosSeleccionados, removeProduct, updateProductQuantity, vaciarCarrito } = useCarrito()
   const [finalEnDolares, setFinalEnDolares] = useState(false)
   const tasaDolar = useTasaDolar()
 
@@ -68,6 +68,7 @@ const Factura = () => {
       <TablaProductoFactura
         productosSeleccionados={productosSeleccionados}
         handleEliminarDeFactura={removeProduct}
+        handleActualizarCantidad={updateProductQuantity}
       />
 
       <div className="linea-divisoria"></div>
