@@ -29,6 +29,11 @@ interface Props {
   // volver al scanner para agregar mas productos a ESTA MISMA boleta, sin
   // cerrarla -- se cierra unicamente con "Cerrar" o "Imprimir".
   onAgregarProductos?: () => void
+  // Solo en la boleta recien confirmada (pedido explicito, 26/09/2026):
+  // suma/resta cantidad de un producto que YA esta en la venta guardada.
+  // No se pasa en reimpresiones de boletas viejas -- ahi la tabla sigue
+  // de solo lectura.
+  onActualizarCantidad?: (codigo: number, cantidad: number) => void
   // true solo cuando textoBotonVolver es el "Cerrar" de una boleta recien
   // confirmada (no en reimpresiones, donde "Volver" es solo navegacion sin
   // consecuencias): pinta el boton de rojo y pide confirmacion antes de
@@ -46,6 +51,7 @@ const BoletaImprimible = ({
   onEditar,
   detallePago,
   onAgregarProductos,
+  onActualizarCantidad,
   esCierre,
 }: Props) => {
   const [finalEnDolares, setFinalEnDolares] = useState(false)
@@ -58,7 +64,7 @@ const BoletaImprimible = ({
 
       <div className="linea-divisoria"></div>
 
-      <TablaProductoFactura productosSeleccionados={productos} />
+      <TablaProductoFactura productosSeleccionados={productos} handleActualizarCantidad={onActualizarCantidad} />
 
       <div className="linea-divisoria"></div>
 

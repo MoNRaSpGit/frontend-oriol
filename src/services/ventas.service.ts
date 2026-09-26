@@ -2,6 +2,19 @@ import { apiFetch, errorDeRespuesta } from './apiClient'
 import { aVenta, type VentaApi } from './clientes.service'
 import type { ItemVenta, MetodoPago, OriolCurrency, TipoPagoCredito, Venta } from '../types/venta'
 
+// Cambiar la cantidad de UN producto dentro de una venta ya guardada
+// (pedido explicito, 26/09/2026: "-1+" en la boleta recien confirmada).
+// Devuelve la venta completa ya actualizada (total y detalle nuevos).
+export async function actualizarCantidadItemVenta(ventaId: number, productoId: number, cantidad: number): Promise<Venta> {
+  const res = await apiFetch(`/ventas/${ventaId}/items/${productoId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ cantidad }),
+  })
+  if (!res.ok) throw new Error(await errorDeRespuesta(res, 'No se pudo actualizar la cantidad'))
+  const data = (await res.json()) as { item: VentaApi }
+  return aVenta(data.item)
+}
+
 export interface NuevaVentaCredito {
   cliente_id: number
   total_pesos: number
