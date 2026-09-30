@@ -13,9 +13,25 @@ interface Props {
   // no viene (reimpresion de una boleta vieja), la cantidad queda como
   // texto fijo, igual que antes.
   handleActualizarCantidad?: (codigo: number, cantidad: number) => void
+  // Pedido explicito (30/09/2026, "el total lo cambia a dolares pero el
+  // producto no"): cuando se clickea el "Total" del pie para verlo en
+  // dolares (ver PieFactura), antes SOLO cambiaba ese resumen de abajo --
+  // cada fila de producto seguia mostrando su moneda original, lo que
+  // hacia parecer que la factura no "paso a dolares" de verdad. Con
+  // finalEnDolares=true, cada fila se convierte tambien (si ya esta en
+  // USD, queda igual). Es solo esta vista/impresion, no toca el producto
+  // real ni lo ya vendido.
+  finalEnDolares?: boolean
+  tasaDolar?: number
 }
 
-const TablaProductoFactura = ({ productosSeleccionados, handleEliminarDeFactura, handleActualizarCantidad }: Props) => {
+const TablaProductoFactura = ({
+  productosSeleccionados,
+  handleEliminarDeFactura,
+  handleActualizarCantidad,
+  finalEnDolares = false,
+  tasaDolar
+}: Props) => {
   return (
     <table
       className="table table-bordered table-hover table-sm"
@@ -33,9 +49,13 @@ const TablaProductoFactura = ({ productosSeleccionados, handleEliminarDeFactura,
       <tbody>
         {productosSeleccionados.map((producto) => {
           const descripcion = producto.descripcion || 'Sin descripción'
-          const precioNum = producto.precio || 0
           const cantidad = producto.cantidad || 0
-          const simboloMoneda = producto.currency === 'USD' ? 'U$S' : '$'
+          // Si se forzo la vista a dolares y este producto esta en pesos,
+          // se convierte con la tasa del dia -- igual criterio que
+          // convertirVista en Scanner.tsx.
+          const seConvierte = finalEnDolares && producto.currency !== 'USD' && !!tasaDolar
+          const precioNum = seConvierte ? (producto.precio || 0) / tasaDolar! : producto.precio || 0
+          const simboloMoneda = finalEnDolares ? 'U$S' : producto.currency === 'USD' ? 'U$S' : '$'
           const subtotal = precioNum * cantidad
 
           return (

@@ -69,6 +69,8 @@ const Factura = () => {
         productosSeleccionados={productosSeleccionados}
         handleEliminarDeFactura={removeProduct}
         handleActualizarCantidad={updateProductQuantity}
+        finalEnDolares={finalEnDolares}
+        tasaDolar={tasaDolar}
       />
 
       <div className="linea-divisoria"></div>

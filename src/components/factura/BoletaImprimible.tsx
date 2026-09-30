@@ -64,7 +64,12 @@ const BoletaImprimible = ({
 
       <div className="linea-divisoria"></div>
 
-      <TablaProductoFactura productosSeleccionados={productos} handleActualizarCantidad={onActualizarCantidad} />
+      <TablaProductoFactura
+        productosSeleccionados={productos}
+        handleActualizarCantidad={onActualizarCantidad}
+        finalEnDolares={finalEnDolares}
+        tasaDolar={tasaDolar}
+      />
 
       <div className="linea-divisoria"></div>
 
