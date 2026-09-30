@@ -54,7 +54,10 @@ const BoletaImprimible = ({
   onActualizarCantidad,
   esCierre,
 }: Props) => {
-  const [finalEnDolares, setFinalEnDolares] = useState(false)
+  // Arranca en dolares (30/09/2026, pedido explicito: "que lo primero que
+  // salga sea en dolar") -- clickeando el total se sigue pudiendo pasar a
+  // pesos, ver PieFactura.
+  const [finalEnDolares, setFinalEnDolares] = useState(true)
   const [mostrarConfirmarCierre, setMostrarConfirmarCierre] = useState(false)
   const tasaDolar = useTasaDolar()
 

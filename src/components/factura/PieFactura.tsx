@@ -22,15 +22,10 @@ const PieFactura = ({ totalPesos, totalDolares, finalEnDolares, setFinalEnDolare
         <div className="pie-col">Firma: _________________________</div>
 
         <div className="pie-col pie-totales">
-          <div className="total-item">
-            <span className="total-label">Total $:</span>
-            <span className="total-value">{totalPesos.toFixed(2)}</span>
-          </div>
-          <div className="total-item">
-            <span className="total-label">Dólares:</span>
-            <span className="total-value">{totalDolares.toFixed(2)}</span>
-          </div>
-
+          {/* Antes se mostraban 3 lineas ("Total $:", "Dolares:" y esta) --
+              pedido explicito (30/09/2026, "saca eso, solo deja un total"):
+              queda UNA sola, que cambia de moneda entera al click, igual
+              que el toggle del catalogo y del carrito. */}
           <div
             className="total-item total-final"
             style={{ color: 'darkred', cursor: 'pointer' }}

@@ -69,18 +69,22 @@ const Scanner = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const tasaDolar = useTasaDolar()
   // null = "modo original": cada producto se ve en su propia moneda, tal
-  // cual esta cargado en el catalogo (comportamiento de siempre). Si se
-  // clickea el total, se fuerza TODO el carrito (cada renglon + el total)
-  // a verse en esa moneda -- solo para ESTA venta, es una conversion de
-  // pantalla nomas. No toca el producto real: la proxima vez que se
-  // busque, vuelve a aparecer en su moneda original de siempre.
-  const [vistaMoneda, setVistaMoneda] = useState<'USD' | 'UYU' | null>(null)
+  // cual esta cargado en el catalogo. 'USD'/'UYU' fuerza TODO el carrito
+  // (cada renglon + el total) a verse en esa moneda -- solo para ESTA
+  // venta, es una conversion de pantalla nomas. No toca el producto real:
+  // la proxima vez que se busque, vuelve a aparecer en su moneda original
+  // de siempre.
+  // Arranca en 'USD' (30/09/2026, pedido explicito: "que lo primero que
+  // salga sea en dolar... conversion en pesos si el usuario asi lo
+  // desea") -- clickeando el total se sigue pudiendo pasar a pesos.
+  const [vistaMoneda, setVistaMoneda] = useState<'USD' | 'UYU' | null>('USD')
 
   // Si el carrito queda vacio (venta confirmada, cancelada, o se sacaron
-  // los productos a mano de a uno) se vuelve al modo original -- para que
-  // la proxima venta no arranque ya convertida por accidente.
+  // los productos a mano de a uno) se vuelve a arrancar en dolares -- para
+  // que la proxima venta empiece igual que siempre, no en el estado en que
+  // haya quedado la anterior.
   useEffect(() => {
-    if (productosSeleccionados.length === 0) setVistaMoneda(null)
+    if (productosSeleccionados.length === 0) setVistaMoneda('USD')
   }, [productosSeleccionados.length])
 
   // Aplica vistaMoneda a un producto del carrito -- si ya esta en esa

@@ -20,7 +20,11 @@ const Productos = () => {
   // igual que el "Total" clickeable de la boleta (PieFactura). Sin esto,
   // clickear un producto en dolares y dejar otro en pesos sin tocar
   // mezclaba las dos monedas en la misma pantalla.
-  const [mostrarEnDolares, setMostrarEnDolares] = useState(false)
+  // Arranca en dolares (30/09/2026, pedido explicito: "que lo primero que
+  // salga sea en dolar... va a tener la conversion en pesos si el usuario
+  // asi lo desea") -- el usuario puede seguir clickeando para ver en
+  // pesos, esto solo cambia que moneda se ve primero al entrar.
+  const [mostrarEnDolares, setMostrarEnDolares] = useState(true)
 
   useEffect(() => {
     if (query.trim().length < 2) {
