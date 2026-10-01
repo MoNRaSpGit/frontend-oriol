@@ -22,10 +22,20 @@ const PieFactura = ({ totalPesos, totalDolares, finalEnDolares, setFinalEnDolare
         <div className="pie-col">Firma: _________________________</div>
 
         <div className="pie-col pie-totales">
-          {/* Antes se mostraban 3 lineas ("Total $:", "Dolares:" y esta) --
-              pedido explicito (30/09/2026, "saca eso, solo deja un total"):
-              queda UNA sola, que cambia de moneda entera al click, igual
-              que el toggle del catalogo y del carrito. */}
+          {/* Pedido explicito (30/09/2026, "saca eso, solo deja un total"):
+              una sola linea de total, que cambia de moneda entera al
+              click. Pedido explicito (01/10/2026): de yapa, una
+              referencia en pesos SOLO cuando se esta viendo en dolares
+              (si ya se esta viendo en pesos, esa referencia seria
+              redundante con el total de abajo -- por eso desaparece
+              sola al tocar el total). No es clickeable, es solo para
+              consulta rapida. */}
+          {finalEnDolares && (
+            <div className="total-item">
+              <span className="total-label">Total en $:</span>
+              <span className="total-value">{totalFinalPesos.toFixed(2)}</span>
+            </div>
+          )}
           <div
             className="total-item total-final"
             style={{ color: 'darkred', cursor: 'pointer' }}
