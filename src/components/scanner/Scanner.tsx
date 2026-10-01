@@ -6,7 +6,8 @@ import { getProductoPorCodigoBarra, buscarProductosPorNombre } from '../../servi
 import { actualizarVenta } from '../../services/ventas.service'
 import ProductoFormModal from '../productos/ProductoFormModal'
 import EditarProductoModal from '../productos/EditarProductoModal'
-import CheckoutModal, { type VentaConfirmadaInfo } from './CheckoutModal'
+import CheckoutModal, { type CheckoutInfo } from './CheckoutModal'
+import BoletaBorrador, { type BorradorInfo } from './BoletaBorrador'
 import BoletaConfirmada, { type VentaAbiertaInfo } from './BoletaConfirmada'
 import { mensajeDeError } from '../../utils/errores'
 import type { Producto } from '../../types/producto'
@@ -60,11 +61,22 @@ const Scanner = () => {
   const [resultadosNombre, setResultadosNombre] = useState<Producto[]>([])
   const [buscandoNombre, setBuscandoNombre] = useState(false)
   const [boletaParaImprimir, setBoletaParaImprimir] = useState<BoletaParaImprimir | null>(null)
+  // Pedido explicito (01/10/2026, "el movimiento pesado lo pasamos a la
+  // factura"): "Confirmar compra" ya no guarda nada -- arma este borrador
+  // (sin ventaId todavia) y se muestra en BoletaBorrador. Recien cuando
+  // ahi se toca "Confirmar" se crea la venta de verdad y se pasa a
+  // boletaParaImprimir/BoletaConfirmada (sin tocar, esa sigue siendo la
+  // de "ya guardada" de siempre).
+  const [borrador, setBorrador] = useState<BorradorInfo | null>(null)
   // Cuando no es null, el scanner esta en modo "agregar mas productos a una
   // boleta ya guardada" (boton Volver de la boleta final) -- el carrito
   // vuelve a arrancar vacio y "Confirmar compra" pasa a sumar contra esta
   // venta en vez de crear una nueva.
   const [ventaAbierta, setVentaAbierta] = useState<VentaAbiertaInfo | null>(null)
+  // Mismo concepto que ventaAbierta, pero para un borrador TODAVIA SIN
+  // CONFIRMAR -- no hay nada que guardar al volver, solo se suman los
+  // productos nuevos al borrador en memoria.
+  const [borradorAbierto, setBorradorAbierto] = useState<BorradorInfo | null>(null)
   const [agregandoProductos, setAgregandoProductos] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const tasaDolar = useTasaDolar()
@@ -162,6 +174,8 @@ const Scanner = () => {
       if (productosSeleccionados.length > 0) {
         if (ventaAbierta) {
           handleAgregarAVentaAbierta()
+        } else if (borradorAbierto) {
+          handleVolverABorrador()
         } else {
           setMostrarCheckout(true)
         }
@@ -204,24 +218,71 @@ const Scanner = () => {
     setProductoEditando(null)
   }
 
-  const handleVentaConfirmada = (info: VentaConfirmadaInfo) => {
-    // Confirmar cierra el ciclo al toque: se guarda una copia de la
-    // boleta para poder imprimirla (o no) como paso aparte, y el
-    // carrito se vacía ya mismo para que el scanner quede listo para
-    // la próxima venta sin esperar a que alguien imprima.
-    setBoletaParaImprimir({
-      ventaId: info.ventaId,
+  // Ya no guarda nada (pedido explicito, 01/10/2026): arma el borrador en
+  // memoria con lo elegido en el checkout (metodo/cliente) y los
+  // productos tal cual se ven ahora -- el guardado real pasa a
+  // "Confirmar" dentro de BoletaBorrador.
+  const handleCheckoutConfirmado = (info: CheckoutInfo) => {
+    setBorrador({
+      metodoPago: info.metodo,
+      fecha: new Date().toISOString(),
+      nombreCliente: info.nombreCliente,
+      clienteId: info.clienteId,
       productos: productosParaVista,
       totalPesos,
       totalDolares,
-      metodoPago: info.metodo,
-      fecha: info.fecha,
-      nombreCliente: info.nombreCliente,
-      clienteId: info.clienteId,
     })
     vaciarCarrito()
     setMostrarCheckout(false)
-    mostrarToast('Venta confirmada correctamente.')
+    setQuery('')
+  }
+
+  // La venta se guardo de verdad desde BoletaBorrador -- pasa a mostrarse
+  // como BoletaConfirmada, exactamente igual que cualquier otra venta ya
+  // guardada (sus +/- de cantidad vuelven a pegarle al backend, porque
+  // ahora si existe de verdad).
+  const handleBorradorConfirmado = (info: { ventaId: number; fecha: string; borrador: BorradorInfo }) => {
+    setBoletaParaImprimir({
+      ventaId: info.ventaId,
+      productos: info.borrador.productos,
+      totalPesos: info.borrador.totalPesos,
+      totalDolares: info.borrador.totalDolares,
+      metodoPago: info.borrador.metodoPago,
+      fecha: info.fecha,
+      nombreCliente: info.borrador.nombreCliente,
+      clienteId: info.borrador.clienteId,
+    })
+    setBorrador(null)
+  }
+
+  // Suma los productos recien escaneados al borrador (boton Volver de
+  // BoletaBorrador) -- nada de esto toca el backend, es el mismo borrador
+  // en memoria con mas lineas.
+  const handleVolverABorrador = () => {
+    if (!borradorAbierto || productosSeleccionados.length === 0) return
+    const productosFinales = mergearProductos(borradorAbierto.productos, productosParaVista)
+    const { totalPesos: pesos, totalDolares: dolares } = productosFinales.reduce(
+      (acc, p) => {
+        if (p.currency === 'USD') acc.totalDolares += p.total
+        else acc.totalPesos += p.total
+        return acc
+      },
+      { totalPesos: 0, totalDolares: 0 }
+    )
+    setBorrador({ ...borradorAbierto, productos: productosFinales, totalPesos: pesos, totalDolares: dolares })
+    setBorradorAbierto(null)
+    vaciarCarrito()
+    setQuery('')
+  }
+
+  // Se arrepiente de agregar mas productos al borrador: vuelve a
+  // mostrarlo tal cual estaba, sin guardar nada (nunca habia nada
+  // guardado), descartando lo escaneado de mas en este ida y vuelta.
+  const handleCancelarBorradorAbierto = () => {
+    if (!borradorAbierto) return
+    setBorrador(borradorAbierto)
+    setBorradorAbierto(null)
+    vaciarCarrito()
     setQuery('')
   }
 
@@ -308,6 +369,20 @@ const Scanner = () => {
     )
   }
 
+  if (borrador) {
+    return (
+      <BoletaBorrador
+        borrador={borrador}
+        onDescartar={() => setBorrador(null)}
+        onAgregarProductos={(borradorActual) => {
+          setBorradorAbierto(borradorActual)
+          setBorrador(null)
+        }}
+        onConfirmada={handleBorradorConfirmado}
+      />
+    )
+  }
+
   return (
     <div className="container mt-4 scanner-container">
       <h2 className="mb-4">Producto</h2>
@@ -316,6 +391,15 @@ const Scanner = () => {
         <div className="alert alert-info d-flex justify-content-between align-items-center">
           <span>Agregando productos a la boleta #{ventaAbierta.ventaId}.</span>
           <button type="button" className="btn btn-link p-0" onClick={handleCancelarVentaAbierta}>
+            Cancelar y volver a la boleta
+          </button>
+        </div>
+      )}
+
+      {borradorAbierto && (
+        <div className="alert alert-info d-flex justify-content-between align-items-center">
+          <span>Agregando productos a la boleta (todavía sin confirmar).</span>
+          <button type="button" className="btn btn-link p-0" onClick={handleCancelarBorradorAbierto}>
             Cancelar y volver a la boleta
           </button>
         </div>
@@ -477,9 +561,19 @@ const Scanner = () => {
           <button
             className="btn btn-success btn-lg mt-3 w-100"
             disabled={agregandoProductos}
-            onClick={() => (ventaAbierta ? handleAgregarAVentaAbierta() : setMostrarCheckout(true))}
+            onClick={() => {
+              if (ventaAbierta) handleAgregarAVentaAbierta()
+              else if (borradorAbierto) handleVolverABorrador()
+              else setMostrarCheckout(true)
+            }}
           >
-            {ventaAbierta ? (agregandoProductos ? 'Agregando...' : 'Agregar a la boleta') : 'Confirmar compra'}
+            {ventaAbierta
+              ? agregandoProductos
+                ? 'Agregando...'
+                : 'Agregar a la boleta'
+              : borradorAbierto
+                ? 'Agregar a la boleta'
+                : 'Confirmar compra'}
           </button>
         </div>
       )}
@@ -506,11 +600,10 @@ const Scanner = () => {
 
       {mostrarCheckout && (
         <CheckoutModal
-          productos={productosParaVista}
           totalPesos={totalPesos}
           totalDolares={totalDolares}
           onCancelar={() => setMostrarCheckout(false)}
-          onConfirmado={handleVentaConfirmada}
+          onConfirmado={handleCheckoutConfirmado}
         />
       )}
     </div>

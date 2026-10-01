@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { getClientes, crearCliente } from '../../services/clientes.service'
-import { registrarVentaCredito, registrarVentaContado } from '../../services/ventas.service'
 import { mensajeDeError } from '../../utils/errores'
-import type { ProductoBoleta } from '../../context/CarritoContext'
 import type { Cliente } from '../../types/cliente'
-import type { ItemVenta, MetodoPago } from '../../types/venta'
+import type { MetodoPago } from '../../types/venta'
 import VincularClienteModal, { type ClienteVinculado } from './VincularClienteModal'
 import '../../styles/scanner/modal.scss'
 
@@ -12,23 +10,25 @@ import '../../styles/scanner/modal.scss'
 // metodo/boton en el codigo por si vuelve a hacer falta mas adelante.
 const MOSTRAR_METODO_TARJETA = false
 
-export interface VentaConfirmadaInfo {
+// Pedido explicito (01/10/2026, "el movimiento pesado lo pasamos a la
+// factura"): este modal YA NO guarda la venta -- solo resuelve metodo de
+// pago y cliente (creando uno nuevo en la base si hace falta, eso si es
+// liviano y no tiene que ver con la venta en si). El guardado real de la
+// venta pasa a BoletaBorrador, con el boton "Confirmar".
+export interface CheckoutInfo {
   metodo: MetodoPago
   nombreCliente?: string
-  ventaId: number
-  fecha: string
   clienteId?: number
 }
 
 interface Props {
-  productos: ProductoBoleta[]
   totalPesos: number
   totalDolares: number
   onCancelar: () => void
-  onConfirmado: (info: VentaConfirmadaInfo) => void
+  onConfirmado: (info: CheckoutInfo) => void
 }
 
-const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConfirmado }: Props) => {
+const CheckoutModal = ({ totalPesos, totalDolares, onCancelar, onConfirmado }: Props) => {
   const [metodo, setMetodo] = useState<MetodoPago | null>('efectivo')
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [vincularCliente, setVincularCliente] = useState(false)
@@ -59,14 +59,6 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
     }
   }, [necesitaListaClientes])
 
-  const items: ItemVenta[] = productos.map((p) => ({
-    id: p.codigo,
-    name: p.name,
-    cantidad: p.cantidad,
-    precio: p.precio,
-    currency: p.currency,
-  }))
-
   const handleConfirmar = async () => {
     setError('')
 
@@ -75,9 +67,9 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
         setError('Seleccioná un cliente o ingresá uno nuevo.')
         return
       }
-      setGuardando(true)
       let clienteIdCredito: number
       if (clienteVinculado.tipo === 'nuevo') {
+        setGuardando(true)
         try {
           const nuevoCliente = await crearCliente(clienteVinculado.nombre, clienteVinculado.telefono, clienteVinculado.cedula)
           clienteIdCredito = nuevoCliente.id
@@ -86,27 +78,14 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
           setGuardando(false)
           return
         }
+        setGuardando(false)
       } else {
         clienteIdCredito = clienteVinculado.clienteId!
       }
-      try {
-        const venta = await registrarVentaCredito({
-          cliente_id: clienteIdCredito,
-          total_pesos: totalPesos,
-          total_dolares: totalDolares,
-          items,
-        })
-        onConfirmado({
-          metodo: 'credito',
-          nombreCliente: clienteVinculado.nombre,
-          ventaId: venta.id,
-          fecha: venta.fecha,
-          clienteId: clienteIdCredito,
-        })
-      } catch (err) {
-        setError(mensajeDeError(err, 'No se pudo registrar la venta. Probá de nuevo.'))
-        setGuardando(false)
-      }
+      // La venta en si ya no se guarda aca (pedido explicito, 01/10/2026)
+      // -- eso pasa a "Confirmar" en la factura (BoletaBorrador). Esto
+      // solo resuelve con que cliente queda vinculada.
+      onConfirmado({ metodo: 'credito', nombreCliente: clienteVinculado.nombre, clienteId: clienteIdCredito })
       return
     }
 
@@ -133,31 +112,17 @@ const CheckoutModal = ({ productos, totalPesos, totalDolares, onCancelar, onConf
           setGuardando(false)
           return
         }
+        setGuardando(false)
       } else {
         clienteIdFinal = clienteVinculado.clienteId
       }
     }
 
-    setGuardando(true)
-    try {
-      const venta = await registrarVentaContado({
-        metodo_pago: metodo as 'efectivo' | 'tarjeta',
-        total_pesos: totalPesos,
-        total_dolares: totalDolares,
-        items,
-        cliente_id: clienteIdFinal,
-      })
-      onConfirmado({
-        metodo: metodo as 'efectivo' | 'tarjeta',
-        nombreCliente: vincularCliente ? clienteVinculado?.nombre : undefined,
-        ventaId: venta.id,
-        fecha: venta.fecha,
-        clienteId: clienteIdFinal,
-      })
-    } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo registrar la venta. Probá de nuevo.'))
-      setGuardando(false)
-    }
+    onConfirmado({
+      metodo: metodo as 'efectivo' | 'tarjeta',
+      nombreCliente: vincularCliente ? clienteVinculado?.nombre : undefined,
+      clienteId: clienteIdFinal,
+    })
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {

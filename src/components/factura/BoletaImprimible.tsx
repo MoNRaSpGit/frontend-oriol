@@ -39,6 +39,17 @@ interface Props {
   // consecuencias): pinta el boton de rojo y pide confirmacion antes de
   // sacar la boleta de la pantalla.
   esCierre?: boolean
+  // Si se pasa, el boton de "Cerrar" (esCierre=true) llama esto en vez de
+  // abrir el modal interno de si/no de aca abajo -- lo usa el borrador
+  // (01/10/2026, "el cancelar... pregunte si desea guardar o no la
+  // boleta") para mostrar su propio modal de 3 opciones (seguir
+  // editando / descartar / guardar) en vez del simple si/no de siempre.
+  onSolicitarCierre?: () => void
+  // Boton extra "Confirmar" (01/10/2026): el guardado pesado real, que
+  // ahora pasa a vivir aca en vez de en el checkout. Solo aparece si se
+  // pasa (lo usa el borrador, no las boletas ya confirmadas/reimpresas).
+  onConfirmar?: () => void
+  confirmando?: boolean
 }
 
 const BoletaImprimible = ({
@@ -53,6 +64,9 @@ const BoletaImprimible = ({
   onAgregarProductos,
   onActualizarCantidad,
   esCierre,
+  onSolicitarCierre,
+  onConfirmar,
+  confirmando,
 }: Props) => {
   // Arranca en dolares (30/09/2026, pedido explicito: "que lo primero que
   // salga sea en dolar") -- clickeando el total se sigue pudiendo pasar a
@@ -94,6 +108,10 @@ const BoletaImprimible = ({
             // boleta sigue abierta. "Cerrar" si, porque saca la boleta de
             // la pantalla y no se puede volver a ella desde aca.
             if (esCierre) {
+              if (onSolicitarCierre) {
+                onSolicitarCierre()
+                return
+              }
               setMostrarConfirmarCierre(true)
               return
             }
@@ -105,6 +123,11 @@ const BoletaImprimible = ({
         {onAgregarProductos && (
           <button className="btn btn-outline-secondary btn-lg" onClick={onAgregarProductos}>
             Volver
+          </button>
+        )}
+        {onConfirmar && (
+          <button className="btn btn-success btn-lg" onClick={onConfirmar} disabled={confirmando}>
+            {confirmando ? 'Guardando...' : 'Confirmar'}
           </button>
         )}
         <button className="btn btn-primary btn-lg" onClick={() => window.print()}>
