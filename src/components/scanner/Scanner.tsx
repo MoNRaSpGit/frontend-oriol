@@ -102,10 +102,16 @@ const Scanner = () => {
   // Aplica vistaMoneda a un producto del carrito -- si ya esta en esa
   // moneda no hace nada, si no, convierte precio unitario y subtotal con
   // la tasa del dia.
+  // El precio convertido se redondea a 2 decimales (01/10/2026): esta
+  // lista es la que se manda a guardar, y el backend rechaza con 400
+  // cualquier precio con mas de 2 decimales (640 / 40.5 = 15.8024...).
+  // El subtotal sale del precio YA redondeado, igual que lo recalcula el
+  // backend (precio * cantidad) -- asi pantalla y venta guardada coinciden.
   const convertirVista = (p: ProductoBoleta, moneda: 'USD' | 'UYU'): ProductoBoleta => {
     if (p.currency === moneda) return p
     const factor = p.currency === 'USD' ? tasaDolar : 1 / tasaDolar
-    return { ...p, currency: moneda, precio: p.precio * factor, total: p.total * factor }
+    const precio = Math.round(p.precio * factor * 100) / 100
+    return { ...p, currency: moneda, precio, total: Math.round(precio * p.cantidad * 100) / 100 }
   }
 
   // Lista "para mostrar (y vender)": si no se toco el total, es la misma
