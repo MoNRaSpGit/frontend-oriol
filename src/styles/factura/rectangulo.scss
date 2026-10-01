@@ -18,6 +18,30 @@
   }
 }
 
+// Responsive en pantalla (01/10/2026) -- ver comentario grande en
+// factura.scss. Sin esto, la caja de 280px de alto fijo con 4 columnas
+// (SERIE/FECHA/PAGO/MONEDA) quedaba apretadisima al lado del logo en una
+// pantalla angosta.
+@media screen and (max-width: 640px) {
+  .header-box {
+    height: auto;
+  }
+
+  .header-titles-values {
+    flex-wrap: wrap;
+  }
+
+  .header-col {
+    flex: 1 1 50%;
+    padding: 6px;
+    font-size: 0.8rem;
+  }
+
+  .header-cliente {
+    height: auto;
+  }
+}
+
 .header-row {
   flex: 1;
   text-align: center;

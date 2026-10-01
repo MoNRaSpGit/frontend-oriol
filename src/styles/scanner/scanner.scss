@@ -282,3 +282,78 @@
 .scanner-total-clickeable {
   cursor: pointer;
 }
+
+// Responsive (01/10/2026, pedido explicito: "lo uso en el celular y se ve
+// feo especialmente la parte del scanner"). El renglon de producto era
+// una sola fila horizontal con 5 bloques separados por bordes -- en una
+// pantalla angosta eso se aprieta o se corta. Se pasa a una grilla de 2
+// filas por producto: arriba imagen + nombre/precio + cruz de eliminar,
+// abajo Editar + cantidad/total -- nada se corta, todo sigue siendo
+// tocable con el dedo (los botones ya eran grandes a proposito, eso no
+// cambia).
+@media (max-width: 640px) {
+  .scanner-item-header {
+    // Los titulos de columna ("Producto", "Cant.", "Total") no tienen
+    // sentido arriba de una tarjeta apilada -- cada dato ya tiene su
+    // propio contexto visual abajo.
+    display: none;
+  }
+
+  .scanner-item {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    grid-template-areas:
+      'img info cerrar'
+      'editar resultado resultado';
+    column-gap: 14px;
+    row-gap: 10px;
+    padding: 14px 16px;
+  }
+
+  .scanner-item-img {
+    grid-area: img;
+    width: 56px;
+    height: 56px;
+  }
+
+  .scanner-item-info {
+    grid-area: info;
+    min-width: 0;
+  }
+
+  .scanner-item-nombre {
+    font-size: 1.05rem;
+  }
+
+  .scanner-item-cerrar-wrap {
+    grid-area: cerrar;
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .scanner-item-editar-wrap {
+    grid-area: editar;
+    border-left: none;
+    padding-left: 0;
+    justify-content: flex-start;
+    padding-top: 10px;
+    border-top: 1px solid v.$color-border-light;
+  }
+
+  .scanner-item-resultado {
+    grid-area: resultado;
+    border-left: none;
+    padding-left: 0;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid v.$color-border-light;
+  }
+
+  .scanner-item-total {
+    min-width: 0;
+  }
+
+  .scanner-form {
+    max-width: 100%;
+  }
+}

@@ -32,20 +32,21 @@ const TablaProductoFactura = ({
   tasaDolar
 }: Props) => {
   return (
-    <table
-      className="table table-bordered table-hover table-sm"
-      style={{ margin: 0, width: '100%', textAlign: 'center' }}
-    >
-      <thead className="thead-light">
-        <tr>
-          <th>Cantidad</th>
-          <th>Descripción</th>
-          <th>Precio Unitario</th>
-          <th>Total</th>
-          {handleEliminarDeFactura && <th className="col-eliminar">Eliminar</th>}
-        </tr>
-      </thead>
-      <tbody>
+    <div className="factura-tabla-scroll">
+      <table
+        className="table table-bordered table-hover table-sm"
+        style={{ margin: 0, width: '100%', textAlign: 'center' }}
+      >
+        <thead className="thead-light">
+          <tr>
+            <th>Cantidad</th>
+            <th>Descripción</th>
+            <th>Precio Unitario</th>
+            <th>Total</th>
+            {handleEliminarDeFactura && <th className="col-eliminar">Eliminar</th>}
+          </tr>
+        </thead>
+        <tbody>
         {productosSeleccionados.map((producto) => {
           const descripcion = producto.descripcion || 'Sin descripción'
           const cantidad = producto.cantidad || 0
@@ -119,8 +120,9 @@ const TablaProductoFactura = ({
             </tr>
           )
         })}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
   )
 }
 

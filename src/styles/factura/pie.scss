@@ -92,3 +92,37 @@
     display: none !important;
   }
 }
+
+// Responsive en pantalla (01/10/2026) -- ver comentario grande en
+// factura.scss. El pie estaba pensado como la base de una hoja A4
+// (absoluto, 3 columnas, altura fija) y los botones colgaban en una fila
+// sin wrap por debajo -- en el celular quedaban cortados. Se pasa todo a
+// flujo normal, apilado.
+@media screen and (max-width: 640px) {
+  .factura-footer {
+    position: static;
+    height: auto;
+    margin-top: 16px;
+  }
+
+  .pie-rect {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px 0;
+  }
+
+  .pie-col2 {
+    margin-top: 0;
+  }
+
+  .factura-acciones-bar {
+    position: static;
+    flex-wrap: wrap;
+    margin-top: 16px;
+
+    .btn {
+      flex: 1 1 calc(50% - 6px);
+      justify-content: center;
+    }
+  }
+}

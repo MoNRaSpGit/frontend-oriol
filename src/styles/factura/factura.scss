@@ -109,3 +109,32 @@
   margin-top: 6px;
   font-weight: 700;
 }
+
+/* ----------------
+   RESPONSIVE EN PANTALLA (01/10/2026, pedido explicito: "lo uso en el
+   celular y se ve feo"). Todo este componente esta pensado para que la
+   version IMPRESA salga identica a una hoja A4 (altura fija, pie
+   absoluto, etc.) -- @media screen (nunca @media print) tira abajo esos
+   valores fijos SOLO en pantalla chica, para que entre sin recortarse ni
+   generar scroll horizontal. La version impresa queda intacta.
+   ---------------- */
+@media screen and (max-width: 640px) {
+  .factura-container {
+    height: auto;
+    max-width: 100%;
+    margin: 10px auto;
+    padding: 14px;
+  }
+
+  .factura-header {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  // La tabla de productos puede seguir siendo mas ancha que la pantalla
+  // (4-5 columnas) -- mejor dejarla scrollear de costado que apretar los
+  // numeros hasta ilegibles.
+  .factura-tabla-scroll {
+    overflow-x: auto;
+  }
+}
