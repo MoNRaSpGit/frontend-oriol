@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react'
 import type { DatosFactura } from './CabeceraFactura'
+import { getClientes } from '../../services/clientes.service'
+import type { Cliente } from '../../types/cliente'
 import '../../styles/scanner/modal.scss'
 
 interface Props {
@@ -10,6 +13,35 @@ interface Props {
 const EditarDatosFacturaModal = ({ datosFactura, setDatosFactura, onCerrar }: Props) => {
   const handleChange = (campo: keyof DatosFactura) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setDatosFactura({ ...datosFactura, [campo]: e.target.value })
+  }
+
+  // Elegir un cliente ya de alta, o escribirlo a mano (pedido explicito,
+  // 22/10/2026: "tener el modo manual... o el select de los clientes
+  // actuales, las dos opciones"). Elegir del select llena el nombre;
+  // escribir a mano vuelve a dejar el select en "Seleccioná...".
+  const [clientes, setClientes] = useState<Cliente[]>([])
+  const [clienteId, setClienteId] = useState<number | ''>('')
+
+  useEffect(() => {
+    getClientes()
+      .then(setClientes)
+      .catch(() => {
+        // Si falla, el modo manual sigue funcionando igual.
+      })
+  }, [])
+
+  const handleSeleccionarCliente = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = e.target.value ? Number(e.target.value) : ''
+    setClienteId(id)
+    if (id) {
+      const existente = clientes.find((c) => c.id === id)
+      if (existente) setDatosFactura({ ...datosFactura, nombreCliente: existente.nombre })
+    }
+  }
+
+  const handleNombreManual = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setClienteId('')
+    setDatosFactura({ ...datosFactura, nombreCliente: e.target.value })
   }
 
   return (
@@ -63,12 +95,24 @@ const EditarDatosFacturaModal = ({ datosFactura, setDatosFactura, onCerrar }: Pr
           </div>
 
           <div className="mb-3">
-            <label className="form-label">Nombre del cliente</label>
+            <label className="form-label">Cliente ya de alta</label>
+            <select className="form-select" value={clienteId} onChange={handleSeleccionarCliente}>
+              <option value="">Seleccioná...</option>
+              {clientes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">Nombre del cliente (a mano)</label>
             <input
               type="text"
               className="form-control"
               value={datosFactura.nombreCliente}
-              onChange={handleChange('nombreCliente')}
+              onChange={handleNombreManual}
             />
           </div>
 
