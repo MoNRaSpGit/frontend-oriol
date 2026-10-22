@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import BoletaImprimible, { type DatosFactura } from '../factura/BoletaImprimible'
 import ConfirmarDescartarModal from './ConfirmarDescartarModal'
+import EditarNombreBorradorModal from './EditarNombreBorradorModal'
 import { useToast } from '../../context/ToastContext'
 import { registrarVentaContado, registrarVentaCredito } from '../../services/ventas.service'
 import { mensajeDeError } from '../../utils/errores'
@@ -64,6 +65,12 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
   const [mostrarConfirmarSalida, setMostrarConfirmarSalida] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
+  // Nombre/cliente editable en el borrador, antes de guardar (pedido
+  // explicito, 22/10/2026). 100% local -- recien se manda al backend
+  // cuando se confirma la venta de verdad, igual que cantidad/totales.
+  const [clienteId, setClienteId] = useState<number | null>(borrador.clienteId ?? null)
+  const [nombreCliente, setNombreCliente] = useState(borrador.nombreCliente)
+  const [mostrarEditarNombre, setMostrarEditarNombre] = useState(false)
 
   // Cantidad editable -- 100% local, sin pegarle al backend (ese era el
   // problema original: cada click quedaba pesado porque la venta ya
@@ -101,7 +108,7 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
       const venta =
         borrador.metodoPago === 'credito'
           ? await registrarVentaCredito({
-              cliente_id: borrador.clienteId!,
+              cliente_id: clienteId!,
               total_pesos: totalPesos,
               total_dolares: totalDolares,
               items,
@@ -111,7 +118,7 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
               total_pesos: totalPesos,
               total_dolares: totalDolares,
               items,
-              cliente_id: borrador.clienteId,
+              cliente_id: clienteId ?? undefined,
             })
       return { ventaId: venta.id, fecha: venta.fecha }
     } catch (err) {
@@ -126,7 +133,10 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
     const resultado = await guardarVenta()
     if (!resultado) return
     mostrarToast('Venta confirmada correctamente.')
-    onConfirmada({ ...resultado, borrador: { ...borrador, productos, totalPesos, totalDolares } })
+    onConfirmada({
+      ...resultado,
+      borrador: { ...borrador, productos, totalPesos, totalDolares, clienteId: clienteId ?? undefined, nombreCliente },
+    })
   }
 
   async function handleGuardarYSalir() {
@@ -134,7 +144,10 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
     if (!resultado) return
     setMostrarConfirmarSalida(false)
     mostrarToast('Venta confirmada correctamente.')
-    onConfirmada({ ...resultado, borrador: { ...borrador, productos, totalPesos, totalDolares } })
+    onConfirmada({
+      ...resultado,
+      borrador: { ...borrador, productos, totalPesos, totalDolares, clienteId: clienteId ?? undefined, nombreCliente },
+    })
   }
 
   const datosFactura: DatosFactura = {
@@ -145,7 +158,7 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
     pago: PAGO_POR_METODO[borrador.metodoPago],
     moneda: 'UYU',
     rutReceptor: '',
-    nombreCliente: borrador.nombreCliente || 'Cliente final',
+    nombreCliente: nombreCliente || 'Cliente final',
     direccionCliente: '',
     ubicacionCliente: 'TACUAREMBÓ, URUGUAY',
   }
@@ -162,7 +175,10 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
         esCierre
         onSolicitarCierre={() => setMostrarConfirmarSalida(true)}
         onActualizarCantidad={handleActualizarCantidad}
-        onAgregarProductos={() => onAgregarProductos({ ...borrador, productos, totalPesos, totalDolares })}
+        onAgregarProductos={() =>
+          onAgregarProductos({ ...borrador, productos, totalPesos, totalDolares, clienteId: clienteId ?? undefined, nombreCliente })
+        }
+        onEditar={() => setMostrarEditarNombre(true)}
         onConfirmar={handleConfirmar}
         confirmando={guardando}
       />
@@ -178,6 +194,19 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
             onDescartar()
           }}
           onGuardar={handleGuardarYSalir}
+        />
+      )}
+
+      {mostrarEditarNombre && (
+        <EditarNombreBorradorModal
+          clienteIdActual={clienteId}
+          nombreActual={nombreCliente || 'Cliente final'}
+          onCancelar={() => setMostrarEditarNombre(false)}
+          onGuardar={(resultado) => {
+            setClienteId(resultado.clienteId)
+            setNombreCliente(resultado.nombreCliente ?? undefined)
+            setMostrarEditarNombre(false)
+          }}
         />
       )}
     </>

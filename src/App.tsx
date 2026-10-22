@@ -17,21 +17,6 @@ function App() {
   return (
     <ToastProvider>
       <CarritoProvider>
-        {/* Franja de prueba TEMPORAL (22/10/2026, pedido explicito: "pone
-            una franja roja para ver si sube los cambios") -- saco esto en
-            cuanto confirmemos que el deploy esta llegando bien. */}
-        <div
-          style={{
-            background: '#dc2626',
-            color: '#fff',
-            textAlign: 'center',
-            fontWeight: 800,
-            padding: '6px 10px',
-            fontSize: 14,
-          }}
-        >
-          PRUEBA DE DEPLOY — si ves esta franja roja, el cambio nuevo SÍ llegó
-        </div>
         <NavBar vista={vista} setVista={setVista} />
         {vista === 'productos' && <Productos />}
         {vista === 'factura' && <Factura />}
