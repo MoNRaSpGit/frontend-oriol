@@ -1,6 +1,7 @@
 @use '../variables' as v;
 
 .header-box {
+  position: relative;
   flex: 1;
   height: 280px;
   display: flex;
@@ -12,9 +13,31 @@
   }
 }
 
+// Boton chiquito ademas del click en todo el recuadro (pedido explicito,
+// 22/10/2026) -- nunca sale en el papel impreso.
+.header-box-editar-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 1;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid black;
+  border-radius: 4px;
+  background: white;
+  color: black;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 @media print {
   .header-box {
     cursor: default;
+  }
+
+  .header-box-editar-btn {
+    display: none;
   }
 }
 

@@ -38,6 +38,22 @@ const CabeceraFactura = ({ datosFactura, finalEnDolares, onEditar }: Props) => {
         role={onEditar ? 'button' : undefined}
         title={onEditar ? 'Editar datos de la factura' : undefined}
       >
+        {onEditar && (
+          // Boton chiquito ademas del click en todo el recuadro (pedido
+          // explicito, 22/10/2026: "ponele un botoncito editar, pero no
+          // quites lo que ya anda") -- stopPropagation para que no
+          // dispare el onClick del recuadro grande dos veces.
+          <button
+            type="button"
+            className="header-box-editar-btn"
+            onClick={(e) => {
+              e.stopPropagation()
+              onEditar()
+            }}
+          >
+            Editar
+          </button>
+        )}
         <div className="header-row header-rut">RUT EMISOR: {datosFactura.rutEmisor}</div>
         <div className="header-row header-efacture">{datosFactura.eFacture}</div>
         <div className="header-multi">
