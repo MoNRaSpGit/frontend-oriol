@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import BoletaImprimible, { type DatosFactura } from '../factura/BoletaImprimible'
 import ConfirmarDescartarModal from './ConfirmarDescartarModal'
-import EditarNombreBorradorModal from './EditarNombreBorradorModal'
+import EditarBorradorModal from './EditarBorradorModal'
 import { useToast } from '../../context/ToastContext'
 import { registrarVentaContado, registrarVentaCredito } from '../../services/ventas.service'
 import { mensajeDeError } from '../../utils/errores'
@@ -65,12 +65,16 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
   const [mostrarConfirmarSalida, setMostrarConfirmarSalida] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
-  // Nombre/cliente editable en el borrador, antes de guardar (pedido
-  // explicito, 22/10/2026). 100% local -- recien se manda al backend
-  // cuando se confirma la venta de verdad, igual que cantidad/totales.
+  // Metodo de pago/fecha/cliente editables en el borrador, antes de
+  // guardar (pedido explicito, 22/10/2026 -- mismos campos que
+  // EditarVentaModal.tsx, mas el select de clientes). 100% local --
+  // recien se manda al backend cuando se confirma la venta de verdad,
+  // igual que cantidad/totales.
+  const [metodoPago, setMetodoPago] = useState(borrador.metodoPago)
+  const [fecha, setFecha] = useState(borrador.fecha)
   const [clienteId, setClienteId] = useState<number | null>(borrador.clienteId ?? null)
   const [nombreCliente, setNombreCliente] = useState(borrador.nombreCliente)
-  const [mostrarEditarNombre, setMostrarEditarNombre] = useState(false)
+  const [mostrarEditarBorrador, setMostrarEditarBorrador] = useState(false)
 
   // Cantidad editable -- 100% local, sin pegarle al backend (ese era el
   // problema original: cada click quedaba pesado porque la venta ya
@@ -106,7 +110,7 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
     try {
       const items = armarItems()
       const venta =
-        borrador.metodoPago === 'credito'
+        metodoPago === 'credito'
           ? await registrarVentaCredito({
               cliente_id: clienteId!,
               total_pesos: totalPesos,
@@ -114,7 +118,7 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
               items,
             })
           : await registrarVentaContado({
-              metodo_pago: borrador.metodoPago as 'efectivo' | 'tarjeta',
+              metodo_pago: metodoPago as 'efectivo' | 'tarjeta',
               total_pesos: totalPesos,
               total_dolares: totalDolares,
               items,
@@ -129,14 +133,15 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
     }
   }
 
+  function borradorActualizado() {
+    return { ...borrador, productos, totalPesos, totalDolares, metodoPago, fecha, clienteId: clienteId ?? undefined, nombreCliente }
+  }
+
   async function handleConfirmar() {
     const resultado = await guardarVenta()
     if (!resultado) return
     mostrarToast('Venta confirmada correctamente.')
-    onConfirmada({
-      ...resultado,
-      borrador: { ...borrador, productos, totalPesos, totalDolares, clienteId: clienteId ?? undefined, nombreCliente },
-    })
+    onConfirmada({ ...resultado, borrador: borradorActualizado() })
   }
 
   async function handleGuardarYSalir() {
@@ -144,18 +149,15 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
     if (!resultado) return
     setMostrarConfirmarSalida(false)
     mostrarToast('Venta confirmada correctamente.')
-    onConfirmada({
-      ...resultado,
-      borrador: { ...borrador, productos, totalPesos, totalDolares, clienteId: clienteId ?? undefined, nombreCliente },
-    })
+    onConfirmada({ ...resultado, borrador: borradorActualizado() })
   }
 
   const datosFactura: DatosFactura = {
     rutEmisor: '',
     eFacture: 'e-Factura',
     serie: 'A',
-    fecha: formatearFecha(borrador.fecha),
-    pago: PAGO_POR_METODO[borrador.metodoPago],
+    fecha: formatearFecha(fecha),
+    pago: PAGO_POR_METODO[metodoPago],
     moneda: 'UYU',
     rutReceptor: '',
     nombreCliente: nombreCliente || 'Cliente final',
@@ -175,10 +177,8 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
         esCierre
         onSolicitarCierre={() => setMostrarConfirmarSalida(true)}
         onActualizarCantidad={handleActualizarCantidad}
-        onAgregarProductos={() =>
-          onAgregarProductos({ ...borrador, productos, totalPesos, totalDolares, clienteId: clienteId ?? undefined, nombreCliente })
-        }
-        onEditar={() => setMostrarEditarNombre(true)}
+        onAgregarProductos={() => onAgregarProductos(borradorActualizado())}
+        onEditar={() => setMostrarEditarBorrador(true)}
         onConfirmar={handleConfirmar}
         confirmando={guardando}
       />
@@ -197,15 +197,19 @@ const BoletaBorrador = ({ borrador, onDescartar, onAgregarProductos, onConfirmad
         />
       )}
 
-      {mostrarEditarNombre && (
-        <EditarNombreBorradorModal
+      {mostrarEditarBorrador && (
+        <EditarBorradorModal
+          metodoActual={metodoPago}
+          fechaActual={fecha}
           clienteIdActual={clienteId}
           nombreActual={nombreCliente || 'Cliente final'}
-          onCancelar={() => setMostrarEditarNombre(false)}
+          onCancelar={() => setMostrarEditarBorrador(false)}
           onGuardar={(resultado) => {
+            setMetodoPago(resultado.metodoPago)
+            setFecha(resultado.fecha)
             setClienteId(resultado.clienteId)
             setNombreCliente(resultado.nombreCliente ?? undefined)
-            setMostrarEditarNombre(false)
+            setMostrarEditarBorrador(false)
           }}
         />
       )}
